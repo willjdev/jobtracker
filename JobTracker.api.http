@@ -1,0 +1,37 @@
+@Host=http://localhost:5300
+
+GET {{Host}}/companies
+Accept: application/json
+
+###
+
+GET {{Host}}/companies/1
+Accept: application/json
+
+###
+
+POST {{Host}}/companies/
+Content-Type: application/json
+
+{
+    "Name": "Guerrilla",
+    "Description": "Game Developer",
+    "Website": "guerrilla.com",
+    "Location": "Remote"
+}
+
+###
+
+PUT {{Host}}/companies/4
+Content-Type: application/json
+
+{
+    "Id": 4,
+    "Name": "Guerrilla",
+    "Description": "Senior Game Developer"
+}
+
+###
+
+DELETE {{Host}}/companies/2
+

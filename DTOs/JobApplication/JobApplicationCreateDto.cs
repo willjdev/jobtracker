@@ -11,6 +11,6 @@ public class JobApplicationCreateDto
     [Url(ErrorMessage = "Url format is invalid")]
     public string? JobUrl { get; set; }
     
-    //public int CompanyId { get; set; } De pronto puede obtenerse de una lista
+    public int CompanyId { get; set; }
     
 }

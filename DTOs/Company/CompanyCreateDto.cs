@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JobTracker.api.Dtos.Company;
+namespace JobTracker.api.Dtos.CompanyDto;
 
 public class CompanyCreateDto
 {

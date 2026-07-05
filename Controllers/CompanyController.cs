@@ -1,6 +1,7 @@
-using JobTracker.api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using JobTracker.api.Models;
+using JobTracker.api.Dtos.Company;
 
 namespace JobTracker.api.Controllers;
 
@@ -16,12 +17,26 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Company>>> GetAll()
+    public async Task<ActionResult<List<CompanyResponseDto>>> GetAll()
     {
         try
         {
+            List<CompanyResponseDto> companiesResponse = [];
             var companies = await _context.Companies.ToListAsync();
-            return companies;
+
+            foreach (Company company in companies)
+            {
+                companiesResponse.Add( new CompanyResponseDto
+                {
+                    Id = company.Id,
+                    Name = company.Name,
+                    Description = company.Description,
+                    Website = company.Website,
+                    Location = company.Location
+                });
+            }
+
+            return companiesResponse;
         }
         catch (Exception ex)
         {
@@ -31,12 +46,22 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Company>> Get(int id)
+    public async Task<ActionResult<CompanyResponseDto>> Get(int id)
     {
         try
         {
             var company = await _context.Companies.FindAsync(id);
-            return company == null ? NotFound() : company;
+            if (company is null)
+                return NotFound();
+            
+            return new CompanyResponseDto
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Description = company.Description,
+                Website = company.Website,
+                Location = company.Location
+            };
         }
         catch (ArgumentException ex)
         {
@@ -46,15 +71,16 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Company company)
+    public async Task<IActionResult> Create(CompanyCreateDto company)
     {
         if (ModelState.IsValid)
         {
             try
             {
-                await _context.Companies.AddAsync(company);
+                var newCompany = new Company{ Name = company.Name, Description = company.Description, Website = company.Website, Location = company.Location };
+                await _context.Companies.AddAsync(newCompany);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(Get), new { id = company.Id}, company);
+                return CreatedAtAction(nameof(Get), new { id = newCompany.Id}, company);
             }
             catch (Exception ex)
             {
@@ -66,17 +92,14 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Company company)
-    {
-        if (id != company.Id)
-            return BadRequest();
-                
+    public async Task<IActionResult> Update(int id, CompanyUpdateDto company)
+    {           
         if (ModelState.IsValid)
         {
             try
             {
                 var companyDB = await _context.Companies.FindAsync(id);
-                if (companyDB == null) return NotFound();
+                if (companyDB == null || companyDB.Id != id) return NotFound();
                 
                 companyDB.Name = company.Name;
                 companyDB.Description = company.Description;

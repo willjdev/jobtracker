@@ -1,4 +1,4 @@
-@Host=http://localhost:5300
+@Host=http://localhost:5400
 
 GET {{Host}}/companies
 Accept: application/json
@@ -14,9 +14,9 @@ POST {{Host}}/companies/
 Content-Type: application/json
 
 {
-    "Name": "Guerrilla",
+    "Name": "Santa Monica",
     "Description": "Game Developer",
-    "Website": "guerrilla.com",
+    "Website": "http://www.santamonica.com",
     "Location": "Remote"
 }
 

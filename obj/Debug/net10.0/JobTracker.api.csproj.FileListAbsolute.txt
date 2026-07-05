@@ -314,3 +314,4 @@ C:\Users\William\Documents\Dev\JobTracker.api\obj\Debug\net10.0\refint\JobTracke
 C:\Users\William\Documents\Dev\JobTracker.api\obj\Debug\net10.0\JobTracker.api.pdb
 C:\Users\William\Documents\Dev\JobTracker.api\obj\Debug\net10.0\JobTracker.api.genruntimeconfig.cache
 C:\Users\William\Documents\Dev\JobTracker.api\obj\Debug\net10.0\ref\JobTracker.api.dll
+C:\Users\William\Documents\Dev\JobTracker.api\obj\Debug\net10.0\JobTracker.api.sourcelink.json

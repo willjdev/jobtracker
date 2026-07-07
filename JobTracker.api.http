@@ -35,3 +35,35 @@ Content-Type: application/json
 
 DELETE {{Host}}/companies/2
 
+
+// **** Job Applications ****
+
+###
+
+GET {{Host}}/jobapplication
+Accept: application/json
+
+###
+
+GET {{Host}}/jobapplication/1
+Accept: application/json
+
+###
+
+POST {{Host}}/jobapplication
+Content-Type: application/json
+
+{
+    "Position": "Junior Game Developer",
+    "JobUrl": "https://www.job.com",
+    "CompanyId": 4
+}
+
+###
+
+PUT {{Host}}/jobapplication/2
+Content-Type: application/json
+
+{
+    
+}

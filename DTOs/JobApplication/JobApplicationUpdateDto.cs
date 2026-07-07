@@ -8,6 +8,8 @@ public class JobApplicationUpdateDto
     [StringLength(80, ErrorMessage = "Job position length must be less than 80 characters")]
     public required string Position { get; set; }
 
+    public string? Status { get; set; }
+
     [Url(ErrorMessage = "Url format is invalid")]
     public string? JobUrl { get; set; }
 }

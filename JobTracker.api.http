@@ -65,5 +65,9 @@ PUT {{Host}}/jobapplication/2
 Content-Type: application/json
 
 {
-    
+    "Position": "Junior Java Developer"
 }
+
+###
+
+DELETE {{Host}}/jobapplication/4

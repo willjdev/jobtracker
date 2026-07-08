@@ -34,7 +34,7 @@ public class JobApplicationController : ControllerBase
                     Status = job.Status,
                     AppliedAt = job.AppliedAt,
                     JobUrl = job.JobUrl,
-                    Company = job.Company.Name
+                    Company = job.Company?.Name ?? "Sin empresa"
                 };
                 jobsList.Add(newJobResponse);
             }
@@ -63,7 +63,7 @@ public class JobApplicationController : ControllerBase
                 Status = job.Status,
                 AppliedAt = job.AppliedAt,
                 JobUrl = job.JobUrl,
-                Company = job.Company.Name
+                Company = job.Company?.Name ?? "Sin empresa"
             };
         }
         catch (Exception ex)

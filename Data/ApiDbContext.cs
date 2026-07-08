@@ -16,8 +16,14 @@ public class ApiDbContext : DbContext
             // Cada COmpany puede tener muchas solicitudes, las cuales se agrupan en su lista JobApplications, la cual se define en el modelo de Company
             .HasForeignKey(ja => ja.CompanyId);
             // Para amarrar este puente en la base de datos, se utiliza la columna CompanyId como la clave foránea
+
+        modelBuilder.Entity<ApplicationNote>()
+            .HasOne(a => a.JobApplication)
+            .WithMany(j => j.ApplicationNotes)
+            .HasForeignKey(n => n.JobApplicationId);
     }
 
     public DbSet<Company> Companies { get; set; }
     public DbSet<JobApplication> Applications { get; set; }
+    public DbSet<ApplicationNote> Notes { get; set; }
 }

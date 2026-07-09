@@ -136,14 +136,14 @@ public class CompaniesController : ControllerBase
 
             _context.Companies.Remove(company);
             await _context.SaveChangesAsync();
+            
+            return NoContent();    
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             return BadRequest();
         }
-
-        return NoContent();    
     }
 
 }

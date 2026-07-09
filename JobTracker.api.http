@@ -71,3 +71,20 @@ Content-Type: application/json
 ###
 
 DELETE {{Host}}/jobapplication/4
+
+###
+
+// **** ApplicationNote ***
+
+GET {{Host}}/applicationnote
+Accept: application/json
+
+###
+
+POST {{Host}}/applicationnote
+Content-Type: application/json
+
+{
+    "Content": "No response until now",
+    "JobApplicationId": 1
+}

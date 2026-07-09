@@ -152,14 +152,14 @@ public class JobApplicationController : ControllerBase
             
             _context.Applications.Remove(job);
             await _context.SaveChangesAsync();
+            
+            return NoContent();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
             return BadRequest();
         }
-
-        return NoContent();
     }
 
     

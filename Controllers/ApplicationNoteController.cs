@@ -6,14 +6,16 @@ using JobTracker.api.Dtos.ApplicationNote;
 namespace JobTracker.api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class ApplicationNoteController : ControllerBase
+[Route("api/application-notes")]
+public class ApplicationNotesController : ControllerBase
 {
     private readonly ApiDbContext _context;
+    private readonly ILogger<ApplicationNotesController> _logger;
 
-    public ApplicationNoteController(ApiDbContext context)
+    public ApplicationNotesController(ApiDbContext context, ILogger<ApplicationNotesController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -26,15 +28,15 @@ public class ApplicationNoteController : ControllerBase
 
             foreach (ApplicationNote note in notes)
             {
-                notesResponse.Add(new ApplicationNoteResponseDto{ Content = note.Content, CreatedAt = note.CreatedAt });
+                notesResponse.Add(new ApplicationNoteResponseDto{ Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt });
 
             }
             return notesResponse;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            return StatusCode(500, new { message = "An error ocurred while getting notes"});
+            _logger.LogError(ex, "Error getting application notes");
+            return StatusCode(500, new { message = "An error occurred while getting notes"});
         }
     }
 
@@ -46,64 +48,57 @@ public class ApplicationNoteController : ControllerBase
             var note = await _context.Notes.FindAsync(id);
             if (note is null)
                 return NotFound();
-            return new ApplicationNoteResponseDto { Content = note.Content, CreatedAt = note.CreatedAt };
+            return new ApplicationNoteResponseDto { Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt };
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            return NotFound();
+            _logger.LogError(ex, "Error getting application note");
+            return StatusCode(500, new { message = "An error occurred while getting note"});
         }
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(ApplicatioNoteCreateDto note)
     {
-        if (ModelState.IsValid)
+        try
         {
-            try
-            {
-                var job = await _context.Applications.FindAsync(note.JobApplicationId);
-                if (job is null)
-                    return BadRequest();
+            var job = await _context.Applications.FindAsync(note.JobApplicationId);
+            if (job is null)
+                return BadRequest();
 
-                var newNote = new ApplicationNote{ Content = note.Content, JobApplicationId = note.JobApplicationId, JobApplication = job };
-                await _context.Notes.AddAsync(newNote);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(Get), new { id = newNote.Id}, note);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            var newNote = new ApplicationNote{ Content = note.Content, JobApplicationId = note.JobApplicationId, JobApplication = job };
+            await _context.Notes.AddAsync(newNote);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), new { id = newNote.Id}, note);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating application note");
+            return StatusCode(500, new { message = "An error occurred while creating applicatio note"});
         }
 
-        return BadRequest();
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, ApplicationNoteUpdateDto note)
     {
-        if (ModelState.IsValid)
+        try
         {
-            try
-            {
-                var noteDb = await _context.Notes.FindAsync(id);
-                if (noteDb is null || noteDb.Id != id)
-                    return BadRequest();
-                
-                noteDb.Content = note.Content;
+            var noteDb = await _context.Notes.FindAsync(id);
+            if (noteDb is null || noteDb.Id != id)
+                return BadRequest();
+            
+            noteDb.Content = note.Content;
 
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            return NoContent();
         }
-
-        return BadRequest();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating application note");
+            return StatusCode(500, new { message = "An error occurred while updating applicatio note"});
+        }
     }
 
     [HttpDelete("{id}")]
@@ -122,8 +117,8 @@ public class ApplicationNoteController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            return BadRequest();
+            _logger.LogError(ex, "Error deleting applicatio note");
+            return StatusCode(500, new { message = "An error occurred while deleting applicatio note"});
         }
     }
 }

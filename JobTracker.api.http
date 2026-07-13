@@ -81,6 +81,11 @@ Accept: application/json
 
 ###
 
+GET {{Host}}/applicationnote/1
+Accept: application/json
+
+###
+
 POST {{Host}}/applicationnote
 Content-Type: application/json
 
@@ -88,3 +93,16 @@ Content-Type: application/json
     "Content": "No response until now",
     "JobApplicationId": 1
 }
+
+###
+
+PUT {{Host}}/applicationnote/1
+Content-Type: application/json
+
+{
+    "Content": "Received an email, let's see what happens"
+}
+
+###
+
+DELETE {{Host}}/applicationnote/2

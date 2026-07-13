@@ -4,6 +4,7 @@ namespace JobTracker.api.Dtos.JobApplication;
 
 public class JobApplicationResponseDto
 {
+    public int Id { get; set; }
     public required string Position { get; set; }
     public required string Status { get; set; }
     public DateTime AppliedAt { get; set; }

@@ -6,14 +6,16 @@ using JobTracker.api.Dtos.CompanyDto;
 namespace JobTracker.api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/companies")]
 public class CompaniesController : ControllerBase
 {
     private readonly ApiDbContext _context;
+    private readonly ILogger<CompaniesController> _logger;
 
-    public CompaniesController(ApiDbContext context)
+    public CompaniesController(ApiDbContext context, ILogger<CompaniesController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -40,8 +42,8 @@ public class CompaniesController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            return StatusCode(500, new { message = "Ocurrió un error al obtener las empresas" });
+            _logger.LogError(ex, "Error getting companies");
+            return StatusCode(500, new { message = "An error occurred while getting companies" });
         }
     }
 
@@ -65,63 +67,54 @@ public class CompaniesController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            Console.WriteLine(ex.Message);
-            return NotFound();
+            _logger.LogError(ex, "Error getting company");
+            return StatusCode(500, new { message = "An error occurred while getting company"});
         }
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CompanyCreateDto company)
     {
-        if (ModelState.IsValid)
+        try
         {
-            try
-            {
-                var newCompany = new Company{ Name = company.Name, Description = company.Description, Website = company.Website, Location = company.Location };
-                await _context.Companies.AddAsync(newCompany);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(Get), new { id = newCompany.Id}, company);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            var newCompany = new Company{ Name = company.Name, Description = company.Description, Website = company.Website, Location = company.Location };
+            await _context.Companies.AddAsync(newCompany);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), new { id = newCompany.Id}, company);
         }
-
-        return BadRequest();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating company");
+            return StatusCode(500, new { message = "An error occurred while creating company"});
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CompanyUpdateDto company)
     {           
-        if (ModelState.IsValid)
+        try
         {
-            try
-            {
-                var companyDB = await _context.Companies.FindAsync(id);
-                if (companyDB == null || companyDB.Id != id) return NotFound();
-                
-                companyDB.Name = company.Name;
-                companyDB.Description = company.Description;
+            var companyDB = await _context.Companies.FindAsync(id);
+            if (companyDB == null || companyDB.Id != id) return NotFound();
+            
+            companyDB.Name = company.Name;
+            companyDB.Description = company.Description;
 
-                if (company.Website != null)
-                    companyDB.Website = company.Website;
-                if (company.Location != null)
-                    companyDB.Location = company.Location;
+            if (company.Website != null)
+                companyDB.Website = company.Website;
+            if (company.Location != null)
+                companyDB.Location = company.Location;
 
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-                return NoContent();
+            return NoContent();
 
-            }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
         }
-
-        return BadRequest();
-        
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Error updating company");
+            return StatusCode(500, new { message = "An error occurred while updating company"});
+        }
     }
 
     [HttpDelete("{id}")]
@@ -141,8 +134,8 @@ public class CompaniesController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            return BadRequest();
+            _logger.LogError(ex, "Error deleting company");
+            return StatusCode(500, new { message = "An error occurred while deleting company"});
         }
     }
 

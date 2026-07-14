@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JobTracker.api.Models;
+namespace JobTracker.Api.Models;
 
 public class Company
 {

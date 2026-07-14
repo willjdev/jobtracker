@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using JobTracker.api.Models;
-using JobTracker.api.Dtos.JobApplication;
+using JobTracker.Api.Models;
+using JobTracker.Api.Dtos.JobApplicationDto;
+using JobTracker.Api.Data;
 
-namespace JobTracker.api.Controllers;
+namespace JobTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/applications")]

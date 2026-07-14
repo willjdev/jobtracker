@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using JobTracker.api.Models;
-using JobTracker.api.Dtos.ApplicationNote;
+using JobTracker.Api.Models;
+using JobTracker.Api.Dtos.ApplicationNoteDto;
+using JobTracker.Api.Data;
 
-namespace JobTracker.api.Controllers;
+namespace JobTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/application-notes")]
@@ -58,7 +59,7 @@ public class ApplicationNotesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ApplicatioNoteCreateDto note)
+    public async Task<IActionResult> Create(ApplicationNoteCreateDto note)
     {
         try
         {

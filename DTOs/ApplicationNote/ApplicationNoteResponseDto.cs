@@ -1,6 +1,4 @@
-using JobTracker.api.Models;
-
-namespace JobTracker.api.Dtos.ApplicationNote;
+namespace JobTracker.Api.Dtos.ApplicationNoteDto;
 
 public class ApplicationNoteResponseDto
 {

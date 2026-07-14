@@ -1,4 +1,4 @@
-namespace JobTracker.api.Models;
+namespace JobTracker.Api.Models;
 
 public class ApplicationNote
 {

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JobTracker.api.Dtos.ApplicationNote;
+namespace JobTracker.Api.Dtos.ApplicationNoteDto;
 
-public class ApplicatioNoteCreateDto
+public class ApplicationNoteCreateDto
 {
     [Required(ErrorMessage = "Note content is required")]
     public string? Content { get; set; }

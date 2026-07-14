@@ -1,6 +1,6 @@
-using JobTracker.api.Models;
+using JobTracker.Api.Models;
 
-namespace JobTracker.api.Dtos.JobApplication;
+namespace JobTracker.Api.Dtos.JobApplicationDto;
 
 public class JobApplicationResponseDto
 {

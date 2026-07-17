@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.JobApplicationDto;
 using JobTracker.Api.Data;
+using Microsoft.IdentityModel.Tokens;
 
 namespace JobTracker.Api.Controllers;
 
@@ -152,6 +153,42 @@ public class JobApplicationsController : ControllerBase
         }
     }
 
-    
+// *******************************************************************************************************
+
+    [HttpGet]
+    public async Task<ActionResult<List<JobApplicationResponseDto>>> SearchJobApplication (JobApplicationSearchDto search)
+    {
+        try
+        {
+            IQueryable<JobApplication> query = _context.Applications.AsQueryable();
+
+            if (search.CompanyId != null)
+                query = query.Where(j => j.CompanyId == search.CompanyId);
+            if (!string.IsNullOrWhiteSpace(search.Position))
+                query = query.Where(j => j.Position.Contains(search.Position));
+            if (search.AppliedAt != null)
+                query = query.Where(j => j.AppliedAt.Date == search.AppliedAt.Value.Date);
+            if (!string.IsNullOrWhiteSpace(search.Status))
+                query = query.Where(j => j.Status == search.Status);
+            
+            var jobList = await query.Select(j => new JobApplicationResponseDto
+            {
+                Id = j.Id,
+                Position = j.Position,
+                Status = j.Status,
+                AppliedAt = j.AppliedAt,
+                JobUrl = j.JobUrl,
+                Company = j.Company!.Name 
+            })
+            .ToListAsync();
+
+            return jobList;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while getting search");
+            return StatusCode(500, new { message = "An error occurred while getting job searched"});            
+        }
+    }
 }
 

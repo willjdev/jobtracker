@@ -14,10 +14,10 @@ POST {{Host}}/api/companies/
 Content-Type: application/json
 
 {
-    "Name": "Santa Monica",
+    "Name": "Nintendo",
     "Description": "Game Developer",
-    "Website": "http://www.santamonica.com",
-    "Location": "Remote"
+    "Website": "http://www.naughtydog.com",
+    "Location": "Hyrule"
 }
 
 ###
@@ -33,7 +33,11 @@ Content-Type: application/json
 
 ###
 
-DELETE {{Host}}/companies/2
+DELETE {{Host}}/api/companies/2
+
+###
+
+GET {{Host}}/api/companies?location=remote
 
 
 // **** Job Applications ****
@@ -74,7 +78,8 @@ DELETE {{Host}}/api/applications/4
 
 ###
 
-GET {{Host}}/api/applications?companyid=2
+GET {{Host}}/api/applications?appliedat=2026-07-07
+
 Accept: application/json
 
 // **** ApplicationNote ***

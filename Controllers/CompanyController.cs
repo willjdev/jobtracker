@@ -20,9 +20,9 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CompanyResponseDto>>> GetAll()
+    public async Task<ActionResult<List<CompanyResponseDto>>> GetAll([FromQuery] CompanySearchDto search)
     {
-        try
+        /* try
         {
             List<CompanyResponseDto> companiesResponse = [];
             var companies = await _context.Companies.ToListAsync();
@@ -45,6 +45,37 @@ public class CompaniesController : ControllerBase
         {
             _logger.LogError(ex, "Error getting companies");
             return StatusCode(500, new { message = "An error occurred while getting companies" });
+        } */
+        try
+        {
+            IQueryable<Company> query = _context.Companies.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search.Name))
+                query = query.Where(c => c.Name == search.Name);
+            if (!string.IsNullOrWhiteSpace(search.Location))
+                query = query.Where(c => c.Location == search.Location);
+            if (search.CreatedAt != null)
+                query = query.Where(c => c.CreatedAt.Date == search.CreatedAt.Value.Date);
+            if (!string.IsNullOrWhiteSpace(search.JobApplicationPosition))
+                query = query.Where(c => c.JobApplications.Any(j => j.Position.Contains(search.JobApplicationPosition)));
+        
+            var companiesList = await query.Select(c => new CompanyResponseDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                Website = c.Website,
+                Location = c.Location
+            })
+            .ToListAsync();
+
+            return companiesList;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while getting search");
+            return StatusCode(500, new { message = "An error occurred while getting companies searched"});
+            throw;
         }
     }
 

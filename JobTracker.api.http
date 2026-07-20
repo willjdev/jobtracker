@@ -1,16 +1,16 @@
 @Host=http://localhost:5400
 
-GET {{Host}}/companies
+GET {{Host}}/api/companies
 Accept: application/json
 
 ###
 
-GET {{Host}}/companies/1
+GET {{Host}}/api/companies/1
 Accept: application/json
 
 ###
 
-POST {{Host}}/companies/
+POST {{Host}}/api/companies/
 Content-Type: application/json
 
 {
@@ -22,7 +22,7 @@ Content-Type: application/json
 
 ###
 
-PUT {{Host}}/companies/4
+PUT {{Host}}/api/companies/4
 Content-Type: application/json
 
 {
@@ -40,17 +40,17 @@ DELETE {{Host}}/companies/2
 
 ###
 
-GET {{Host}}/jobapplication
+GET {{Host}}/api/applications
 Accept: application/json
 
 ###
 
-GET {{Host}}/jobapplication/1
+GET {{Host}}/api/applications/1
 Accept: application/json
 
 ###
 
-POST {{Host}}/jobapplication
+POST {{Host}}/api/applications
 Content-Type: application/json
 
 {
@@ -61,7 +61,7 @@ Content-Type: application/json
 
 ###
 
-PUT {{Host}}/jobapplication/2
+PUT {{Host}}/api/applications/2
 Content-Type: application/json
 
 {
@@ -70,9 +70,12 @@ Content-Type: application/json
 
 ###
 
-DELETE {{Host}}/jobapplication/4
+DELETE {{Host}}/api/applications/4
 
 ###
+
+GET {{Host}}/api/applications?companyid=2
+Accept: application/json
 
 // **** ApplicationNote ***
 

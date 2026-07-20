@@ -20,35 +20,38 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JobApplicationResponseDto>>> GetAll()
+    public async Task<ActionResult<List<JobApplicationResponseDto>>> GetJobApplications([FromQuery] JobApplicationSearchDto search)
     {
         try
         {
-            List<JobApplicationResponseDto> jobsList = [];
-            var jobs = await _context.Applications
-                .Include(ja => ja.Company)
-                .ToListAsync();
+            IQueryable<JobApplication> query = _context.Applications.AsQueryable();
 
-            foreach (JobApplication job in jobs)
+            if (search.CompanyId != null)
+                query = query.Where(j => j.CompanyId == search.CompanyId);
+            if (!string.IsNullOrWhiteSpace(search.Position))
+                query = query.Where(j => j.Position.Contains(search.Position));
+            if (search.AppliedAt != null)
+                query = query.Where(j => j.AppliedAt.Date == search.AppliedAt.Value.Date);
+            if (!string.IsNullOrWhiteSpace(search.Status))
+                query = query.Where(j => j.Status == search.Status);
+            
+            var jobList = await query.Select(j => new JobApplicationResponseDto
             {
-                var newJobResponse = new JobApplicationResponseDto
-                {
-                    Id = job.Id,
-                    Position = job.Position,
-                    Status = job.Status,
-                    AppliedAt = job.AppliedAt,
-                    JobUrl = job.JobUrl,
-                    Company = job.Company?.Name ?? "Sin empresa"
-                };
-                jobsList.Add(newJobResponse);
-            }
+                Id = j.Id,
+                Position = j.Position,
+                Status = j.Status,
+                AppliedAt = j.AppliedAt,
+                JobUrl = j.JobUrl,
+                Company = j.Company!.Name 
+            })
+            .ToListAsync();
 
-            return jobsList;
+            return jobList;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting job applications");
-            return StatusCode(500, new { message = "An error occurred while getting job applications"});
+            _logger.LogError(ex, "Error while getting search");
+            return StatusCode(500, new { message = "An error occurred while getting job searched"});            
         }
     }
 
@@ -153,42 +156,7 @@ public class JobApplicationsController : ControllerBase
         }
     }
 
-// *******************************************************************************************************
-
-    [HttpGet]
-    public async Task<ActionResult<List<JobApplicationResponseDto>>> SearchJobApplication (JobApplicationSearchDto search)
-    {
-        try
-        {
-            IQueryable<JobApplication> query = _context.Applications.AsQueryable();
-
-            if (search.CompanyId != null)
-                query = query.Where(j => j.CompanyId == search.CompanyId);
-            if (!string.IsNullOrWhiteSpace(search.Position))
-                query = query.Where(j => j.Position.Contains(search.Position));
-            if (search.AppliedAt != null)
-                query = query.Where(j => j.AppliedAt.Date == search.AppliedAt.Value.Date);
-            if (!string.IsNullOrWhiteSpace(search.Status))
-                query = query.Where(j => j.Status == search.Status);
-            
-            var jobList = await query.Select(j => new JobApplicationResponseDto
-            {
-                Id = j.Id,
-                Position = j.Position,
-                Status = j.Status,
-                AppliedAt = j.AppliedAt,
-                JobUrl = j.JobUrl,
-                Company = j.Company!.Name 
-            })
-            .ToListAsync();
-
-            return jobList;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error while getting search");
-            return StatusCode(500, new { message = "An error occurred while getting job searched"});            
-        }
-    }
+// *******************************************************************************
+    
 }
 

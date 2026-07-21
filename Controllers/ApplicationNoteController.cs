@@ -68,9 +68,15 @@ public class ApplicationNotesController : ControllerBase
                 return BadRequest();
 
             var newNote = new ApplicationNote{ Content = note.Content, JobApplicationId = note.JobApplicationId, JobApplication = job };
+            var response = new ApplicationNoteResponseDto
+            {
+                Id = newNote.Id,
+                Content = newNote.Content,
+                CreatedAt = newNote.CreatedAt
+            };
             await _context.Notes.AddAsync(newNote);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = newNote.Id}, note);
+            return CreatedAtAction(nameof(Get), new { id = newNote.Id}, response);
         }
         catch (Exception ex)
         {

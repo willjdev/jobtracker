@@ -10,4 +10,5 @@ public class JobApplicationResponseDto
     public DateTime AppliedAt { get; set; }
     public string? JobUrl { get; set; }
     public required string Company { get; set; }
+    public int CompanyId { get; set; }
 }

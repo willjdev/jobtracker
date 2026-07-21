@@ -37,7 +37,7 @@ DELETE {{Host}}/api/companies/2
 
 ###
 
-GET {{Host}}/api/companies?location=remote
+GET {{Host}}/api/companies?jobapplicationposition=game%20developer
 
 
 // **** Job Applications ****
@@ -58,9 +58,9 @@ POST {{Host}}/api/applications
 Content-Type: application/json
 
 {
-    "Position": "Junior Game Developer",
+    "Position": "Game Developer",
     "JobUrl": "https://www.job.com",
-    "CompanyId": 4
+    "CompanyId": 6
 }
 
 ###

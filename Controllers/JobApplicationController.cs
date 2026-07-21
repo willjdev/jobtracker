@@ -24,14 +24,22 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            IQueryable<JobApplication> query = _context.Applications.AsQueryable();
+            IQueryable<JobApplication> query = _context.Applications.AsNoTracking().AsQueryable();
 
             if (search.CompanyId != null)
                 query = query.Where(j => j.CompanyId == search.CompanyId);
+
             if (!string.IsNullOrWhiteSpace(search.Position))
                 query = query.Where(j => j.Position.Contains(search.Position));
+
             if (search.AppliedAt != null)
-                query = query.Where(j => j.AppliedAt.Date == search.AppliedAt.Value.Date);
+            {
+                var startDate = search.AppliedAt.Value.Date;
+                var endDate = startDate.AddDays(1);
+
+                query = query.Where(j => j.AppliedAt >= startDate && j.AppliedAt < endDate);
+            }
+
             if (!string.IsNullOrWhiteSpace(search.Status))
                 query = query.Where(j => j.Status == search.Status);
             
@@ -42,7 +50,8 @@ public class JobApplicationsController : ControllerBase
                 Status = j.Status,
                 AppliedAt = j.AppliedAt,
                 JobUrl = j.JobUrl,
-                Company = j.Company!.Name 
+                Company = j.Company!.Name,
+                CompanyId = j.CompanyId
             })
             .ToListAsync();
 
@@ -51,7 +60,7 @@ public class JobApplicationsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while getting search");
-            return StatusCode(500, new { message = "An error occurred while getting job searched"});            
+            return StatusCode(500, new { message = "An error occurred while getting job applications"});            
         }
     }
 
@@ -73,7 +82,8 @@ public class JobApplicationsController : ControllerBase
                 Status = job.Status,
                 AppliedAt = job.AppliedAt,
                 JobUrl = job.JobUrl,
-                Company = job.Company?.Name ?? "Sin empresa"
+                Company = job.Company?.Name ?? "Sin empresa",
+                CompanyId = job.CompanyId
             };
         }
         catch (Exception ex)
@@ -95,7 +105,7 @@ public class JobApplicationsController : ControllerBase
             var newJob = new JobApplication{ Position = job.Position, JobUrl = job.JobUrl, CompanyId = job.CompanyId , Company = company };
             await _context.Applications.AddAsync(newJob);
             await _context.SaveChangesAsync();
-            var jobResponse = new JobApplicationResponseDto{ Position = newJob.Position, Status = newJob.Status, AppliedAt = newJob.AppliedAt, JobUrl = newJob.JobUrl, Company = newJob.Company.Name };
+            var jobResponse = new JobApplicationResponseDto{ Position = newJob.Position, Status = newJob.Status, AppliedAt = newJob.AppliedAt, JobUrl = newJob.JobUrl, Company = newJob.Company.Name, CompanyId  = newJob.CompanyId };
             return CreatedAtAction(nameof(Get), new { id = newJob.Id }, jobResponse);
         }
         catch (Exception ex)

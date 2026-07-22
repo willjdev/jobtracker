@@ -42,6 +42,17 @@ public class JobApplicationsController : ControllerBase
 
             if (!string.IsNullOrWhiteSpace(search.Status))
                 query = query.Where(j => j.Status == search.Status);
+
+            query = search.FieldName?.ToLower() switch
+            {
+                "position" => query.OrderBy( c => c.Position),
+                "status" => query.OrderBy(c => c.Status),
+                "appliedAt" => query.OrderBy(c => c.AppliedAt),
+                "companyId" => query.OrderBy(c => c.CompanyId),
+                _ => query.OrderBy(c => c.Id)
+            };
+
+            query = query.Skip((search.Page - 1) * search.Records).Take(search.Records);
             
             var jobList = await query.Select(j => new JobApplicationResponseDto
             {

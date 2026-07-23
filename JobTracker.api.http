@@ -58,9 +58,9 @@ POST {{Host}}/api/applications
 Content-Type: application/json
 
 {
-    "Position": "Game Developer",
+    "Position": "Backend Developer",
     "JobUrl": "https://www.job.com",
-    "CompanyId": 6
+    "CompanyId": 1
 }
 
 ###
@@ -78,7 +78,7 @@ DELETE {{Host}}/api/applications/4
 
 ###
 
-GET {{Host}}/api/applications?appliedat=2026-07-07
+GET {{Host}}/api/applications?fieldname=appliedat&records=20&sortbytype=desc
 
 Accept: application/json
 

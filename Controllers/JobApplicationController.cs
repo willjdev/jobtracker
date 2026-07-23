@@ -45,10 +45,10 @@ public class JobApplicationsController : ControllerBase
 
             query = search.FieldName?.ToLower() switch
             {
-                "position" => query.OrderBy( c => c.Position),
-                "status" => query.OrderBy(c => c.Status),
-                "appliedAt" => query.OrderBy(c => c.AppliedAt),
-                "companyId" => query.OrderBy(c => c.CompanyId),
+                "position" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Position) : query.OrderBy( c => c.Position),
+                "status" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Status) : query.OrderBy(c => c.Status),
+                "appliedat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.AppliedAt) : query.OrderBy(c => c.AppliedAt),
+                "companyid" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CompanyId) : query.OrderBy(c => c.CompanyId),
                 _ => query.OrderBy(c => c.Id)
             };
 
@@ -116,7 +116,7 @@ public class JobApplicationsController : ControllerBase
             var newJob = new JobApplication{ Position = job.Position, JobUrl = job.JobUrl, CompanyId = job.CompanyId , Company = company };
             await _context.Applications.AddAsync(newJob);
             await _context.SaveChangesAsync();
-            var jobResponse = new JobApplicationResponseDto{ Position = newJob.Position, Status = newJob.Status, AppliedAt = newJob.AppliedAt, JobUrl = newJob.JobUrl, Company = newJob.Company.Name, CompanyId  = newJob.CompanyId };
+            var jobResponse = new JobApplicationResponseDto{ Id = newJob.Id, Position = newJob.Position, Status = newJob.Status, AppliedAt = newJob.AppliedAt, JobUrl = newJob.JobUrl, Company = newJob.Company.Name, CompanyId  = newJob.CompanyId };
             return CreatedAtAction(nameof(Get), new { id = newJob.Id }, jobResponse);
         }
         catch (Exception ex)

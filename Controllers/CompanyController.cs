@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.CompanyDto;
 using JobTracker.Api.Data;
+using System.IO.Compression;
 
 namespace JobTracker.Api.Controllers;
 
@@ -40,6 +41,16 @@ public class CompaniesController : ControllerBase
             if (!string.IsNullOrWhiteSpace(search.JobApplicationPosition))
                 query = query.Where(c => c.JobApplications.Any(j => j.Position.Contains(search.JobApplicationPosition)));
         
+            query = search.FieldName?.ToLower() switch
+            {
+                "name" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name),
+                "location" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Location) : query.OrderBy(c => c.Location),
+                "createdat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CreatedAt) : query.OrderBy(c => c.CreatedAt),
+                _ => query.OrderBy(c => c.Id)
+            };
+
+            query = query.Skip((search.Page - 1) * search.Records).Take(search.Records);
+
             var companiesList = await query.Select(c => new CompanyResponseDto
             {
                 Id = c.Id,

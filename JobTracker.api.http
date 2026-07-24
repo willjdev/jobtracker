@@ -37,7 +37,7 @@ DELETE {{Host}}/api/companies/2
 
 ###
 
-GET {{Host}}/api/companies?jobapplicationposition=game%20developer
+GET {{Host}}/api/companies?fieldname=location&sortbytype=desc&records=10
 
 
 // **** Job Applications ****

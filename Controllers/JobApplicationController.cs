@@ -4,6 +4,7 @@ using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.JobApplicationDto;
 using JobTracker.Api.Data;
 using Microsoft.IdentityModel.Tokens;
+using JobTracker.Api.Dtos.ApplicationNoteDto;
 
 namespace JobTracker.Api.Controllers;
 
@@ -82,6 +83,7 @@ public class JobApplicationsController : ControllerBase
         {
             var job = await _context.Applications
                 .Include(j => j.Company)
+                .Include(ja => ja.ApplicationNotes)
                 .FirstOrDefaultAsync(ja => ja.Id == id);
             if (job is null)
                 return NotFound();
@@ -94,7 +96,13 @@ public class JobApplicationsController : ControllerBase
                 AppliedAt = job.AppliedAt,
                 JobUrl = job.JobUrl,
                 Company = job.Company?.Name ?? "Sin empresa",
-                CompanyId = job.CompanyId
+                CompanyId = job.CompanyId,
+                Notes = [.. job.ApplicationNotes.Select(j => new ApplicationNoteResponseDto
+                {
+                    Id = j.Id,
+                    Content = j.Content,
+                    CreatedAt = j.CreatedAt
+                })]
             };
         }
         catch (Exception ex)

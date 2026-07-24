@@ -1,3 +1,4 @@
+using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Models;
 
 namespace JobTracker.Api.Dtos.JobApplicationDto;
@@ -11,4 +12,5 @@ public class JobApplicationResponseDto
     public string? JobUrl { get; set; }
     public required string Company { get; set; }
     public int CompanyId { get; set; }
+    public List<ApplicationNoteResponseDto>? Notes { get; set; }
 }

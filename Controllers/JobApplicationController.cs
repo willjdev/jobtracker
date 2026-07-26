@@ -97,7 +97,9 @@ public class JobApplicationsController : ControllerBase
                 JobUrl = job.JobUrl,
                 Company = job.Company?.Name ?? "Sin empresa",
                 CompanyId = job.CompanyId,
-                Notes = [.. job.ApplicationNotes.Select(j => new ApplicationNoteResponseDto
+                Notes = [.. (job.ApplicationNotes ?? [])
+                .OrderByDescending(n => n.CreatedAt)
+                .Select(j => new ApplicationNoteResponseDto
                 {
                     Id = j.Id,
                     Content = j.Content,

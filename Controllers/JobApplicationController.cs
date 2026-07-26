@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.JobApplicationDto;
 using JobTracker.Api.Data;
-using Microsoft.IdentityModel.Tokens;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 
 namespace JobTracker.Api.Controllers;

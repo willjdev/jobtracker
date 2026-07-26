@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.CompanyDto;
 using JobTracker.Api.Data;
-using System.IO.Compression;
 
 namespace JobTracker.Api.Controllers;
 
@@ -100,7 +99,16 @@ public class CompaniesController : ControllerBase
     {
         try
         {
-            var newCompany = new Company{ Name = company.Name, Description = company.Description, Website = company.Website, Location = company.Location };
+            var newCompany = new Company
+            { 
+                Name = company.Name, 
+                Description = company.Description, 
+                Website = company.Website, 
+                Location = company.Location 
+            };
+            await _context.Companies.AddAsync(newCompany);
+            await _context.SaveChangesAsync();
+
             var response = new CompanyResponseDto
             {
                 Id = newCompany.Id,
@@ -109,8 +117,7 @@ public class CompaniesController : ControllerBase
                 Website = newCompany.Website,
                 Location = newCompany.Location
             };
-            await _context.Companies.AddAsync(newCompany);
-            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(Get), new { id = newCompany.Id}, response);
         }
         catch (Exception ex)

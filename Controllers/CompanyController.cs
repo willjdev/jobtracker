@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.CompanyDto;
+using JobTracker.Api.Dtos.Common;
 using JobTracker.Api.Data;
 
 namespace JobTracker.Api.Controllers;
@@ -48,9 +49,14 @@ public class CompaniesController : ControllerBase
                 _ => query.OrderBy(c => c.Id)
             };
 
-            query = query.Skip((search.Page - 1) * search.Records).Take(search.Records);
+            var totalRecords = await query.CountAsync();
 
-            var companiesList = await query.Select(c => new CompanyResponseDto
+            //query = query.Skip((search.Page - 1) * search.Records).Take(search.Records);
+
+            var companiesList = await query
+            .Skip((search.Page - 1) * search.Records)
+            .Take(search.Records)
+            .Select(c => new CompanyResponseDto
             {
                 Id = c.Id,
                 Name = c.Name,
@@ -60,7 +66,16 @@ public class CompaniesController : ControllerBase
             })
             .ToListAsync();
 
-            return companiesList;
+            var response =  new PagedResponse<CompanyResponseDto>
+            {
+                Items = companiesList,
+                Page = search.Page,
+                Records = search.Records,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)search.Records)
+            };
+
+            return Ok(response);
         }
         catch (Exception ex)
         {

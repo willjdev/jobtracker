@@ -51,8 +51,6 @@ public class CompaniesController : ControllerBase
 
             var totalRecords = await query.CountAsync();
 
-            //query = query.Skip((search.Page - 1) * search.Records).Take(search.Records);
-
             var companiesList = await query
             .Skip((search.Page - 1) * search.Records)
             .Take(search.Records)

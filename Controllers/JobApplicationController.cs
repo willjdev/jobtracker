@@ -2,8 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.JobApplicationDto;
-using JobTracker.Api.Data;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
+using JobTracker.Api.Dtos.Common;
+using JobTracker.Api.Data;
 
 namespace JobTracker.Api.Controllers;
 
@@ -52,9 +53,12 @@ public class JobApplicationsController : ControllerBase
                 _ => query.OrderBy(c => c.Id)
             };
 
-            query = query.Skip((search.Page - 1) * search.Records).Take(search.Records);
-            
-            var jobList = await query.Select(j => new JobApplicationResponseDto
+            var totalRecords = await query.CountAsync();
+
+            var jobList = await query
+            .Skip((search.Page - 1) * search.Records)
+            .Take(search.Records)
+            .Select(j => new JobApplicationResponseDto
             {
                 Id = j.Id,
                 Position = j.Position,
@@ -65,8 +69,17 @@ public class JobApplicationsController : ControllerBase
                 CompanyId = j.CompanyId
             })
             .ToListAsync();
+            
+            var response = new PagedResponse<JobApplicationResponseDto>
+            {
+                Items = jobList,
+                Page = search.Page,
+                Records = search.Records,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)search.Records)
+            };
 
-            return jobList;
+            return Ok(response);
         }
         catch (Exception ex)
         {

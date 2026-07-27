@@ -21,7 +21,7 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JobApplicationResponseDto>>> GetJobApplications([FromQuery] JobApplicationSearchDto search)
+    public async Task<ActionResult<PagedResponse<JobApplicationResponseDto>>> GetJobApplications([FromQuery] JobApplicationSearchDto search)
     {
         try
         {

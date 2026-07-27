@@ -21,7 +21,7 @@ public class CompaniesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CompanyResponseDto>>> GetAll([FromQuery] CompanySearchDto search)
+    public async Task<ActionResult<PagedResponse<CompanyResponseDto>>> GetAll([FromQuery] CompanySearchDto search)
     {
         try
         {

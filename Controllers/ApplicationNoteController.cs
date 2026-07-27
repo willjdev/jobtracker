@@ -68,14 +68,14 @@ public class ApplicationNotesController : ControllerBase
                 return BadRequest();
 
             var newNote = new ApplicationNote{ Content = note.Content, JobApplicationId = note.JobApplicationId, JobApplication = job };
+            await _context.Notes.AddAsync(newNote);
+            await _context.SaveChangesAsync();
             var response = new ApplicationNoteResponseDto
             {
                 Id = newNote.Id,
                 Content = newNote.Content,
                 CreatedAt = newNote.CreatedAt
             };
-            await _context.Notes.AddAsync(newNote);
-            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = newNote.Id}, response);
         }
         catch (Exception ex)
@@ -93,7 +93,7 @@ public class ApplicationNotesController : ControllerBase
         {
             var noteDb = await _context.Notes.FindAsync(id);
             if (noteDb is null || noteDb.Id != id)
-                return BadRequest();
+                return NotFound();
             
             noteDb.Content = note.Content;
 

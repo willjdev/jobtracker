@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.JobApplicationDto;
-using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Dtos.Common;
-using JobTracker.Api.Data;
+using JobTracker.Api.Services.Interfaces;
 
 namespace JobTracker.Api.Controllers;
 
@@ -12,12 +9,12 @@ namespace JobTracker.Api.Controllers;
 [Route("api/applications")]
 public class JobApplicationsController : ControllerBase
 {
-    private readonly ApiDbContext _context;
     private readonly ILogger<JobApplicationsController> _logger;
-    public JobApplicationsController(ApiDbContext context, ILogger<JobApplicationsController> logger)
+    private readonly IJobApplicationService _services;
+    public JobApplicationsController(ILogger<JobApplicationsController> logger, IJobApplicationService services)
     {
-        _context = context;
         _logger = logger;
+        _services = services;
     }
 
     [HttpGet]
@@ -25,68 +22,8 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            IQueryable<JobApplication> query = _context.Applications.AsNoTracking().AsQueryable();
-
-            if (search.CompanyId != null)
-                query = query.Where(j => j.CompanyId == search.CompanyId);
-
-            if (!string.IsNullOrWhiteSpace(search.Position))
-                query = query.Where(j => j.Position.Contains(search.Position));
-
-            if (search.AppliedAt != null)
-            {
-                var startDate = search.AppliedAt.Value.Date;
-                var endDate = startDate.AddDays(1);
-
-                query = query.Where(j => j.AppliedAt >= startDate && j.AppliedAt < endDate);
-            }
-
-            if (!string.IsNullOrWhiteSpace(search.Status))
-                query = query.Where(j => j.Status == search.Status);
-
-            query = search.FieldName?.ToLower() switch
-            {
-                "position" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Position) : query.OrderBy( c => c.Position),
-                "status" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Status) : query.OrderBy(c => c.Status),
-                "appliedat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.AppliedAt) : query.OrderBy(c => c.AppliedAt),
-                "companyid" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CompanyId) : query.OrderBy(c => c.CompanyId),
-                _ => query.OrderBy(c => c.Id)
-            };
-
-            var totalRecords = await query.CountAsync();
-
-            if (search.Page < 1)
-                search.Page = 1;
-            if (search.Records < 1)
-                search.Records = 4;
-            if (search.Records > 50)
-                search.Records = 50;
-
-            var jobList = await query
-            .Skip((search.Page - 1) * search.Records)
-            .Take(search.Records)
-            .Select(j => new JobApplicationResponseDto
-            {
-                Id = j.Id,
-                Position = j.Position,
-                Status = j.Status,
-                AppliedAt = j.AppliedAt,
-                JobUrl = j.JobUrl,
-                Company = j.Company!.Name,
-                CompanyId = j.CompanyId
-            })
-            .ToListAsync();
-            
-            var response = new PagedResponse<JobApplicationResponseDto>
-            {
-                Items = jobList,
-                Page = search.Page,
-                Records = search.Records,
-                TotalRecords = totalRecords,
-                TotalPages = (int)Math.Ceiling(totalRecords / (double)search.Records)
-            };
-
-            return Ok(response);
+            PagedResponse<JobApplicationResponseDto> response = await _services.GetAllAsync(search);
+            return response;
         }
         catch (Exception ex)
         {
@@ -100,31 +37,11 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            var job = await _context.Applications
-                .Include(j => j.Company)
-                .Include(ja => ja.ApplicationNotes)
-                .FirstOrDefaultAsync(ja => ja.Id == id);
-            if (job is null)
+            var response = await _services.GetByIdAsync(id);
+            if (response is null)
                 return NotFound();
-            
-            return new JobApplicationResponseDto
-            {
-                Id = job.Id,
-                Position = job.Position,
-                Status = job.Status,
-                AppliedAt = job.AppliedAt,
-                JobUrl = job.JobUrl,
-                Company = job.Company?.Name ?? "Sin empresa",
-                CompanyId = job.CompanyId,
-                Notes = [.. (job.ApplicationNotes ?? [])
-                .OrderByDescending(n => n.CreatedAt)
-                .Select(j => new ApplicationNoteResponseDto
-                {
-                    Id = j.Id,
-                    Content = j.Content,
-                    CreatedAt = j.CreatedAt
-                })]
-            };
+            else
+                return response;
         }
         catch (Exception ex)
         {
@@ -138,15 +55,11 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            var company = await _context.Companies.FindAsync(job.CompanyId);
-            if (company is null)
+            var response = await _services.CreateAsync(job);
+            if (response is null)
                 return BadRequest();
-
-            var newJob = new JobApplication{ Position = job.Position, JobUrl = job.JobUrl, CompanyId = job.CompanyId , Company = company };
-            await _context.Applications.AddAsync(newJob);
-            await _context.SaveChangesAsync();
-            var jobResponse = new JobApplicationResponseDto{ Id = newJob.Id, Position = newJob.Position, Status = newJob.Status, AppliedAt = newJob.AppliedAt, JobUrl = newJob.JobUrl, Company = newJob.Company.Name, CompanyId  = newJob.CompanyId };
-            return CreatedAtAction(nameof(Get), new { id = newJob.Id }, jobResponse);
+            else
+                return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
         }
         catch (Exception ex)
         {
@@ -160,21 +73,7 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            var jobDb = await _context.Applications.FindAsync(id);
-            if (jobDb is null || jobDb.Id != id)
-                return NotFound();
-            
-            jobDb.Position = job.Position;
-
-            if (job.Status != null)
-                jobDb.Status = job.Status;
-
-            if (job.JobUrl != null)
-                jobDb.JobUrl = job.JobUrl;
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return await _services.UpdateAsync(id, job) ? NoContent() : NotFound();
         }
         catch (Exception ex)
         {
@@ -189,24 +88,13 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            var job = await _context.Applications.FindAsync(id);
-
-            if (job is null)
-                return NotFound();
-            
-            _context.Applications.Remove(job);
-            await _context.SaveChangesAsync();
-            
-            return NoContent();
+            return await _services.DeleteAsync(id) ? NoContent() : NotFound();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting job application");
             return StatusCode(500, new { message = "An error occurred while deleting job application"});
         }
-    }
-
-// *******************************************************************************
-    
+    }    
 }
 

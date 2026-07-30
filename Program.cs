@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Data;
+using JobTracker.Api.Services.Interfaces;
+using JobTracker.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IJobApplicationService, JobApplicationServices>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

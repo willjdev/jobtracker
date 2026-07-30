@@ -43,7 +43,7 @@ public class JobApplicationServices : IJobApplicationService
             "position" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Position) : query.OrderBy(c => c.Position),
             "status" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Status) : query.OrderBy(c => c.Status),
             "appliedat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.AppliedAt) : query.OrderBy(c => c.AppliedAt),
-            "companyid" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Company) : query.OrderBy(c => c.CompanyId),
+            "companyid" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CompanyId) : query.OrderBy(c => c.CompanyId),
             _ => query.OrderBy(c => c.Id)
         };
 

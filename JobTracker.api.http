@@ -37,7 +37,7 @@ DELETE {{Host}}/api/companies/2
 
 ###
 
-GET {{Host}}/api/companies?fieldname=name&records=2&page=3
+GET {{Host}}/api/companies?fieldname=name&records=2&page=1
 
 
 // **** Job Applications ****
@@ -78,7 +78,7 @@ DELETE {{Host}}/api/applications/4
 
 ###
 
-GET {{Host}}/api/applications?fieldname=appliedat&records=20&sortbytype=desc
+GET {{Host}}/api/applications?fieldname=appliedat&records=2&sortbytype=desc
 
 Accept: application/json
 
@@ -100,7 +100,7 @@ POST {{Host}}/api/application-notes
 Content-Type: application/json
 
 {
-    "Content": "No response until now",
+    "Content": "No response",
     "JobApplicationId": 1
 }
 

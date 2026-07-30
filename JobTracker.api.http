@@ -49,7 +49,7 @@ Accept: application/json
 
 ###
 
-GET {{Host}}/api/applications/1
+GET {{Host}}/api/applications/10
 Accept: application/json
 
 ###
@@ -58,27 +58,27 @@ POST {{Host}}/api/applications
 Content-Type: application/json
 
 {
-    "Position": "Backend Developer",
+    "Position": "Game Developer junior",
     "JobUrl": "https://www.job.com",
-    "CompanyId": 1
+    "CompanyId": 5
 }
 
 ###
 
-PUT {{Host}}/api/applications/2
+PUT {{Host}}/api/applications/10
 Content-Type: application/json
 
 {
-    "Position": "Junior Java Developer"
+    "Position": "Junior Game Developer"
 }
 
 ###
 
-DELETE {{Host}}/api/applications/4
+DELETE {{Host}}/api/applications/10
 
 ###
 
-GET {{Host}}/api/applications?fieldname=appliedat&records=2&sortbytype=desc
+GET {{Host}}/api/applications?fieldname=appliedat&records=2&sortbytype=desc&&page=5
 
 Accept: application/json
 

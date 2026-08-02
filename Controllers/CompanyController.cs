@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.CompanyDto;
 using JobTracker.Api.Dtos.Common;
-using JobTracker.Api.Data;
 using JobTracker.Api.Services.Interfaces;
 
 namespace JobTracker.Api.Controllers;

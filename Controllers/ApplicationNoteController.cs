@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Data;
+using JobTracker.Api.Services.Interfaces;
 
 namespace JobTracker.Api.Controllers;
 
@@ -10,13 +11,15 @@ namespace JobTracker.Api.Controllers;
 [Route("api/application-notes")]
 public class ApplicationNotesController : ControllerBase
 {
-    private readonly ApiDbContext _context;
+    //private readonly ApiDbContext _context;
     private readonly ILogger<ApplicationNotesController> _logger;
+    private readonly IApplicationNoteService _services;
 
-    public ApplicationNotesController(ApiDbContext context, ILogger<ApplicationNotesController> logger)
+    public ApplicationNotesController(ILogger<ApplicationNotesController> logger, IApplicationNoteService services)
     {
-        _context = context;
+        //_context = context;
         _logger = logger;
+        _services = services;
     }
 
     [HttpGet]
@@ -24,7 +27,7 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            List<ApplicationNoteResponseDto> notesResponse = [];
+            /* List<ApplicationNoteResponseDto> notesResponse = [];
             List<ApplicationNote> notes = await _context.Notes.ToListAsync();
 
             foreach (ApplicationNote note in notes)
@@ -32,7 +35,8 @@ public class ApplicationNotesController : ControllerBase
                 notesResponse.Add(new ApplicationNoteResponseDto{ Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt });
 
             }
-            return notesResponse;
+            return notesResponse; */
+            return await _services.GetAllAsync();
         }
         catch (Exception ex)
         {
@@ -46,10 +50,15 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            var note = await _context.Notes.FindAsync(id);
+            /* var note = await _context.Notes.FindAsync(id);
             if (note is null)
                 return NotFound();
-            return new ApplicationNoteResponseDto { Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt };
+            return new ApplicationNoteResponseDto { Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt }; */
+            var response = await _services.GetByIdAsync(id);
+            if (response is null)
+                return NotFound();
+            else
+                return response;
         }
         catch (Exception ex)
         {
@@ -63,7 +72,7 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            var job = await _context.Applications.FindAsync(note.JobApplicationId);
+            /* var job = await _context.Applications.FindAsync(note.JobApplicationId);
             if (job is null)
                 return BadRequest();
 
@@ -75,8 +84,12 @@ public class ApplicationNotesController : ControllerBase
                 Id = newNote.Id,
                 Content = newNote.Content,
                 CreatedAt = newNote.CreatedAt
-            };
-            return CreatedAtAction(nameof(Get), new { id = newNote.Id}, response);
+            }; */
+            var response = await _services.CreateAsync(note);
+            if (response is null)
+                return BadRequest();
+            else
+                return CreatedAtAction(nameof(Get), new { id = response.Id}, response);
         }
         catch (Exception ex)
         {
@@ -91,7 +104,7 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            var noteDb = await _context.Notes.FindAsync(id);
+            /* var noteDb = await _context.Notes.FindAsync(id);
             if (noteDb is null || noteDb.Id != id)
                 return NotFound();
             
@@ -99,7 +112,12 @@ public class ApplicationNotesController : ControllerBase
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return NoContent(); */
+            var response =  await _services.UpdateAsync(id, note);
+            if (!response)
+                return NotFound();
+            else    
+                return NoContent();
         }
         catch (Exception ex)
         {
@@ -113,14 +131,19 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            var note = await _context.Notes.FindAsync(id);
+            /* var note = await _context.Notes.FindAsync(id);
             if (note is null)
                 return NotFound();
             
             _context.Notes.Remove(note);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return NoContent(); */
+            var response = await _services.DeleteAsync(id);
+            if (!response)
+                return NotFound();
+            else
+                return NoContent();
         }
         catch (Exception ex)
         {

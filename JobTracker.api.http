@@ -99,8 +99,8 @@ POST {{Host}}/api/application-notes
 Content-Type: application/json
 
 {
-    "Content": "No response",
-    "JobApplicationId": 1
+    "Content": "Response: Interview",
+    "JobApplicationId": 5
 }
 
 ###

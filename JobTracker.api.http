@@ -32,7 +32,7 @@ Content-Type: application/json
 
 ###
 
-DELETE {{Host}}/api/companies/2
+DELETE {{Host}}/api/companies/8
 
 ###
 

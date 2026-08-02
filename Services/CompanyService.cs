@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JobTracker.Api.Services;
 
-public class CompanyServices : ICompanyService
+public class CompanyService : ICompanyService
 {
     private readonly ApiDbContext _context;
 
-    public CompanyServices(ApiDbContext context)
+    public CompanyService(ApiDbContext context)
     {
         _context = context;
     }
@@ -21,9 +21,9 @@ public class CompanyServices : ICompanyService
         IQueryable<Company> query = _context.Companies.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search.Name))
-            query = query.Where(c => c.Name == search.Name);
+            query = query.Where(c => c.Name.Contains(search.Name));
         if (!string.IsNullOrWhiteSpace(search.Location))
-            query = query.Where(c => c.Location == search.Location);
+            query = query.Where(c => c.Location != null && c.Location.Contains(search.Location));
         if (search.CreatedAt != null)
         {
             var startDate = search.CreatedAt.Value.Date;
@@ -36,24 +36,24 @@ public class CompanyServices : ICompanyService
         
         query = search.FieldName?.ToLower() switch
         {
-            "name" => search.SortByType == "desc" ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name),
-            "location" => search.SortByType == "desc" ? query.OrderByDescending(c => c.Location) : query.OrderBy(c => c.Location),
-            "createdat" => search.SortByType == "desc" ? query.OrderByDescending(c => c.CreatedAt) : query.OrderBy(c => c.CreatedAt),
+            "name" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name),
+            "location" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Location) : query.OrderBy(c => c.Location),
+            "createdat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CreatedAt).ThenBy(c => c.Id) : query.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id),
             _ => query.OrderBy(c => c.Id)
         };
 
         var totalRecords = await query.CountAsync();
-
-        if (search.Page < 1)
-            search.Page = 1;
-        if (search.Records < 1)
-            search.Records = 4;
-        if (search.Records > 50)
-            search.Records = 50;
+        var page = search.Page < 1 ? 1 : search.Page;
+        var records = search.Records switch
+        {
+            < 1 => 4,
+            > 50 => 50,
+            _ => search.Records
+        };
         
         var companiesList = await query
-            .Skip((search.Page - 1) * search.Records)
-            .Take(search.Records)
+            .Skip((page - 1) * records)
+            .Take(records)
             .Select(c => new CompanyResponseDto
             {
                 Id = c.Id,
@@ -126,7 +126,7 @@ public class CompanyServices : ICompanyService
 
         if (company.Website != null)
             companyDb.Website = company.Website;
-        if (companyDb.Location != null)
+        if (company.Location != null)
             companyDb.Location = company.Location;
         
         await _context.SaveChangesAsync();

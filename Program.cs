@@ -11,7 +11,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IJobApplicationService, JobApplicationServices>();
-builder.Services.AddScoped<ICompanyService, CompanyServices>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

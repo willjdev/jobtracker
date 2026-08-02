@@ -26,8 +26,7 @@ PUT {{Host}}/api/companies/4
 Content-Type: application/json
 
 {
-    "Id": 4,
-    "Name": "Guerrilla",
+    "Name": "Indie",
     "Description": "Senior Game Developer"
 }
 
@@ -37,7 +36,7 @@ DELETE {{Host}}/api/companies/2
 
 ###
 
-GET {{Host}}/api/companies?fieldname=name&records=2&page=1
+GET {{Host}}/api/companies?fieldname=name&records=20&page=1
 
 
 // **** Job Applications ****

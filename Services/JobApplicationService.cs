@@ -8,11 +8,11 @@ using JobTracker.Api.Dtos.ApplicationNoteDto;
 
 namespace JobTracker.Api.Services;
 
-public class JobApplicationServices : IJobApplicationService
+public class JobApplicationService : IJobApplicationService
 {
     private readonly ApiDbContext _context;
 
-    public JobApplicationServices (ApiDbContext context)
+    public JobApplicationService (ApiDbContext context)
     {
         _context = context;
     }
@@ -40,25 +40,25 @@ public class JobApplicationServices : IJobApplicationService
         
         query = search.FieldName?.ToLower() switch
         {
-            "position" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Position) : query.OrderBy(c => c.Position),
-            "status" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Status) : query.OrderBy(c => c.Status),
-            "appliedat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.AppliedAt) : query.OrderBy(c => c.AppliedAt),
+            "position" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Position).ThenBy(c => c.Id) : query.OrderBy(c => c.Position).ThenBy(c => c.Id),
+            "status" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Status).ThenBy(c => c.Id) : query.OrderBy(c => c.Status).ThenBy(c => c.Id),
+            "appliedat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.AppliedAt).ThenBy(c => c.Id) : query.OrderBy(c => c.AppliedAt).ThenBy(c => c.Id),
             "companyid" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CompanyId) : query.OrderBy(c => c.CompanyId),
             _ => query.OrderBy(c => c.Id)
         };
 
         var totalRecords = await query.CountAsync();
-
-        if (search.Page < 1)
-            search.Page = 1;
-        if (search.Records < 1)
-            search.Records = 4;
-        if (search.Records > 50)
-            search.Records = 50;
+        var page = search.Page < 1 ? 1 : search.Page;
+        var records = search.Records switch
+        {
+            < 1 => 4,
+            > 50 => 50,
+            _ => search.Records
+        };
         
         var jobList = await query
-            .Skip((search.Page - 1 ) * search.Records)
-            .Take(search.Records)
+            .Skip((page - 1 ) * records)
+            .Take(records)
             .Select(j => new JobApplicationResponseDto
             {
                 Id = j.Id,
@@ -74,10 +74,10 @@ public class JobApplicationServices : IJobApplicationService
         var response = new PagedResponse<JobApplicationResponseDto>
         {
             Items = jobList,
-            Page = search.Page,
-            Records = search.Records,
+            Page = page,
+            Records = records,
             TotalRecords = totalRecords,
-            TotalPages = (int)Math.Ceiling(totalRecords / (double)search.Records)
+            TotalPages = (int)Math.Ceiling(totalRecords / (double)records)
         };
 
         return response;

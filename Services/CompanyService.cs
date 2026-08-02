@@ -67,10 +67,10 @@ public class CompanyService : ICompanyService
         var response = new PagedResponse<CompanyResponseDto>
         {
             Items = companiesList,
-            Page = search.Page,
-            Records = search.Records,
+            Page = page,
+            Records = records,
             TotalRecords = totalRecords,
-            TotalPages = (int)Math.Ceiling(totalRecords / (double)search.Records)
+            TotalPages = (int)Math.Ceiling(totalRecords / (double)records)
         };
 
         return response;

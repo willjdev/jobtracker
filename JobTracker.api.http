@@ -48,7 +48,7 @@ Accept: application/json
 
 ###
 
-GET {{Host}}/api/applications/10
+GET {{Host}}/api/applications/5
 Accept: application/json
 
 ###
@@ -77,7 +77,7 @@ DELETE {{Host}}/api/applications/10
 
 ###
 
-GET {{Host}}/api/applications?fieldname=appliedat&records=2&sortbytype=desc&&page=5
+GET {{Host}}/api/applications?fieldname=appliedat&records=20&sortbytype=desc
 
 Accept: application/json
 
@@ -99,19 +99,19 @@ POST {{Host}}/api/application-notes
 Content-Type: application/json
 
 {
-    "Content": "Response: Interview",
+    "Content": "Responseee",
     "JobApplicationId": 5
 }
 
 ###
 
-PUT {{Host}}/api/application-notes/1
+PUT {{Host}}/api/application-notes/5
 Content-Type: application/json
 
 {
-    "Content": "Received an email, let's see what happens"
+    "Content": "Received interview invitation!!"
 }
 
 ###
 
-DELETE {{Host}}/api/application-notes/2
+DELETE {{Host}}/api/application-notes/6

@@ -90,7 +90,7 @@ Accept: application/json
 
 ###
 
-GET {{Host}}/api/application-notes/1
+GET {{Host}}/api/application-notes/7
 Accept: application/json
 
 ###
@@ -99,19 +99,19 @@ POST {{Host}}/api/application-notes
 Content-Type: application/json
 
 {
-    "Content": "Responseee",
-    "JobApplicationId": 5
+    "Content": "Response. Chat with manager",
+    "JobApplicationId": 1
 }
 
 ###
 
-PUT {{Host}}/api/application-notes/5
+PUT {{Host}}/api/application-notes/7
 Content-Type: application/json
 
 {
-    "Content": "Received interview invitation!!"
+    "Content": "Called me"
 }
 
 ###
 
-DELETE {{Host}}/api/application-notes/6
+DELETE {{Host}}/api/application-notes/7

@@ -29,5 +29,32 @@ public class CompanyServiceTests
         await context.SaveChangesAsync();
 
         var service =  new CompanyService(context);
+
+        // Act
+        var result = await service.GetByIdAsync(1);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("Microsoft", result.Name);
+    }
+
+    [Fact]
+    public async Task GetTaskAsync_WhenCompanyDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        var service = new CompanyService(context);
+
+        // Act
+        var result = await service.GetByIdAsync(99);
+
+        // Assert
+        Assert.Null(result);
     }
 }

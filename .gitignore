@@ -2,5 +2,3 @@ TODO.txt
 .vscode/
 bin/
 obj/
-JobTracker.Api.Tests/bin/
-JobTracker.Api.Tests/obj/

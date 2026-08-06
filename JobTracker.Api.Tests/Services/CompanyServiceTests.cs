@@ -9,6 +9,69 @@ namespace JobTracker.Api.Tests.Services;
 
 public class CompanyServiceTests
 {
+    // Helper
+    private async Task SeedDatabaseAsync(ApiDbContext context)
+    {
+        var companies = new List<Company>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Microsoft",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Holand",
+                JobApplications = new List<JobApplication>
+                {
+                    new()
+                    {
+                        Id = 1,
+                        Position = ".NET Developer",
+                        JobUrl = "www.job.com",
+                        CompanyId = 1
+                    },
+                    new()
+                    {
+                        Id = 2,
+                        Position = "Senior .NET Developer",
+                        JobUrl = "www.job.com",
+                        CompanyId = 1
+                    }
+
+                }
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Santa Monica",
+                Description = "Game Company",
+                Website = "www.santamonica.com",
+                Location = "Remote",
+                JobApplications = new List<JobApplication>
+                {
+                    new()
+                    {
+                        Id = 3,
+                        Position = "Game Developer",
+                        JobUrl = "www.job.com",
+                        CompanyId = 2
+                    },
+                    new()
+                    {
+                        Id = 4,
+                        Position = "Senior Game Developer",
+                        JobUrl = "www.job.com",
+                        CompanyId = 2
+                    }
+
+                }
+            }
+        };
+
+        await context.Companies.AddRangeAsync(companies);
+        await context.SaveChangesAsync();
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenCompaniesExist_ReturnPagedResponse()
     {
@@ -53,6 +116,18 @@ public class CompanyServiceTests
         Assert.Equal(2, result.Items.Count);
         Assert.All(result.Items, item => Assert.NotNull(item));
         Assert.Equal("Santa Monica", result.Items[1].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
     }
     
     

@@ -65,6 +65,32 @@ public class CompanyServiceTests
                     }
 
                 }
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Microsoft Colombia",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Colombia",
+                JobApplications = new List<JobApplication>
+                {
+                    new()
+                    {
+                        Id = 5,
+                        Position = "Junior .NET Developer",
+                        JobUrl = "www.job.com",
+                        CompanyId = 3
+                    },
+                    new()
+                    {
+                        Id = 6,
+                        Position = "Senior Azure + .NET Developer",
+                        JobUrl = "www.job.com",
+                        CompanyId = 3
+                    }
+
+                }
             }
         };
 
@@ -82,26 +108,7 @@ public class CompanyServiceTests
         
         using var context = new ApiDbContext(options);
 
-        var companies = new List<Company>
-        {
-            new() {
-                Id = 1,
-                Name = "Microsoft",
-                Description = "Big Company",
-                Website = "www.microsoft.com",
-                Location = "Holand",
-            },
-            new()
-            {
-                Id = 2,
-                Name = "Santa Monica",
-                Description = "Game Company",
-                Website = "www.santamonica.com",
-                Location = "Remote",
-            }
-        };
-        await context.AddRangeAsync(companies);
-        await context.SaveChangesAsync();
+        await SeedDatabaseAsync(context);
         
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto();
@@ -111,9 +118,9 @@ public class CompanyServiceTests
 
         // Result
         Assert.NotNull(result);
-        Assert.Equal(2, result.TotalRecords);
+        Assert.Equal(3, result.TotalRecords);
         Assert.Equal(1, result.TotalPages);
-        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(3, result.Items.Count);
         Assert.All(result.Items, item => Assert.NotNull(item));
         Assert.Equal("Santa Monica", result.Items[1].Name);
     }
@@ -128,6 +135,18 @@ public class CompanyServiceTests
         
         using var context = new ApiDbContext(options);
 
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto { Name = "Santa Monica" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Santa Monica", result.Items[0].Name);
     }
     
     
@@ -162,7 +181,7 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task GetTaskAsync_WhenCompanyDoesNotExist_ReturnsNull()
+    public async Task GetByIdAsync_WhenCompanyDoesNotExist_ReturnsNull()
     {
         // Arrange
 

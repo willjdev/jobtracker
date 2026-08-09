@@ -21,6 +21,7 @@ public class CompanyServiceTests
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Holand",
+                CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
                 JobApplications = new List<JobApplication>
                 {
                     new()
@@ -47,6 +48,7 @@ public class CompanyServiceTests
                 Description = "Game Company",
                 Website = "www.santamonica.com",
                 Location = "Remote",
+                CreatedAt = new DateTime(2026, 7, 20, 7, 0, 0),
                 JobApplications = new List<JobApplication>
                 {
                     new()
@@ -73,6 +75,7 @@ public class CompanyServiceTests
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Colombia",
+                CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0),
                 JobApplications = new List<JobApplication>
                 {
                     new()
@@ -196,6 +199,30 @@ public class CompanyServiceTests
         Assert.NotNull(result);
         Assert.Single(result.Items);
         Assert.Equal("Santa Monica", result.Items[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByCreatedAt_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0) };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Microsoft Colombia", result.Items[0].Name);
     }
     
     

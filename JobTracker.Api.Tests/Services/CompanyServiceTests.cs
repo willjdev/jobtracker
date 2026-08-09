@@ -171,6 +171,31 @@ public class CompanyServiceTests
         Assert.NotNull(result);
         Assert.Equal(2, result.Items.Count);
         Assert.Equal("Microsoft Colombia", result.Items[0].Name);
+        Assert.Equal("Microsoft", result.Items[1].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByLocation_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Location = "Remote" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Santa Monica", result.Items[0].Name);
     }
     
     

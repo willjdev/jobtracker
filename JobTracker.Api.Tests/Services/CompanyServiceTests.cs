@@ -129,6 +129,32 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenRecordsSetToOne_ReturnsTwoPages()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Name = "Micro", Records = 1 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(1, result.Records);
+        Assert.Equal(2, result.TotalRecords);
+        Assert.Equal(2, result.TotalPages);
+    }
+
+    [Fact]
     public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
     {
         // Arrange
@@ -224,7 +250,6 @@ public class CompanyServiceTests
         Assert.Single(result.Items);
         Assert.Equal("Microsoft Colombia", result.Items[0].Name);
     }
-    
     
     [Fact]
     public async Task GetByIdAsync_WhenCompanyExists_ReturnCompany()

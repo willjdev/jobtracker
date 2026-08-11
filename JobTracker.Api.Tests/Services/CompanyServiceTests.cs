@@ -179,6 +179,30 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenNameDoesNotExist_ReturnsEmptyPagedResponse()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Name = "Naughty Dog" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalPages);
+        Assert.Equal(0, result.TotalRecords);
+    }
+
+    [Fact]
     public async Task GetAllAsync_WhenRecordsIsEighty_ReturnsRecordsIsFifty()
     {
         // Arrange

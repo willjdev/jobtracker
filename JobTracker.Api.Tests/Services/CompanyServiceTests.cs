@@ -155,6 +155,53 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenPagesetToTwo_ReturnsPageTwoResults()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Records = 1, Page = 2 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.Page);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenRecordsIsEighty_ReturnsRecordsIsFifty()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Records = 80 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(50, result.Records);
+    }
+
+    [Fact]
     public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
     {
         // Arrange

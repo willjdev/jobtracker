@@ -4,7 +4,6 @@ using JobTracker.Api.Services;
 using JobTracker.Api.Data;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.CompanyDto;
-using Microsoft.Extensions.Options;
 
 namespace JobTracker.Api.Tests.Services;
 
@@ -247,6 +246,29 @@ public class CompanyServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(4, result.Records);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenPageIsLessThanOne_ReturnsPageIsOne()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Page = -5 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Page);
     }
 
     [Fact]

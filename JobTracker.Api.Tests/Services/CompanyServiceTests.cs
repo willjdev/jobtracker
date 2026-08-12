@@ -4,6 +4,7 @@ using JobTracker.Api.Services;
 using JobTracker.Api.Data;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.CompanyDto;
+using Microsoft.Extensions.Options;
 
 namespace JobTracker.Api.Tests.Services;
 
@@ -320,6 +321,30 @@ public class CompanyServiceTests
         Assert.NotNull(result);
         Assert.Single(result.Items);
         Assert.Equal("Microsoft Colombia", result.Items[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByJobApplication_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ JobApplicationPosition = ".NET" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Items.Count);
+        Assert.All(result.Items, item => Assert.StartsWith("M", item.Name));
     }
     
     [Fact]

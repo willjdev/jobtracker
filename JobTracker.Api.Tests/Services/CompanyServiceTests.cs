@@ -227,6 +227,29 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenRecordsIsLessThanOne_ReturnsRecordsIsFour()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Records = -5 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(4, result.Records);
+    }
+
+    [Fact]
     public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
     {
         // Arrange

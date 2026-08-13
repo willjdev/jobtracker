@@ -487,4 +487,36 @@ public class CompanyServiceTests
         // Assert
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task CreateAsync_WhenCompanyCreateDtoIsValid_ReturnsCompanyResponseDto()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+    
+        var service = new CompanyService(context);
+        var createDto = new CompanyCreateDto
+        {
+            Name = "Naughty Dog",
+            Description = "Creators of The Last Of Us",
+            Website = "https://wwww.naughtydog.com",
+            Location = "Remote"
+        };
+
+        // Act
+        var result = await service.CreateAsync(createDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Id > 0);
+        Assert.Equal(createDto.Name, result.Name);
+        Assert.Equal(createDto.Description, result.Description);
+
+        var companyInDb = await context.Companies.FindAsync(result.Id);
+        Assert.NotNull(companyInDb);
+    }
 }

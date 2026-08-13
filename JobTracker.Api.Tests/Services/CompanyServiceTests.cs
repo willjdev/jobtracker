@@ -114,7 +114,7 @@ public class CompanyServiceTests
         await SeedDatabaseAsync(context);
         
         var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto();
+        var searchDto = new CompanySearchDto{};
 
         // Act
         var result = await service.GetAllAsync(searchDto);
@@ -148,6 +148,30 @@ public class CompanyServiceTests
         Assert.Empty(result.Items);
         Assert.Equal(0, result.TotalPages);
         Assert.Equal(0, result.TotalRecords);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFieldNameIsNull_ReturnsSortedById()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ FieldName = null };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Items[0].Id);
+        Assert.Equal(2, result.Items[1].Id);
     }
 
     [Fact]

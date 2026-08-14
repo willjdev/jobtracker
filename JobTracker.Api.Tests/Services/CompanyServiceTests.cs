@@ -519,4 +519,34 @@ public class CompanyServiceTests
         var companyInDb = await context.Companies.FindAsync(result.Id);
         Assert.NotNull(companyInDb);
     }
+
+    [Fact]
+    public async Task UpdateAsync_WhenUpdateSuccess_ReturnsTrue()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var testId = 1;
+        var updateDto = new CompanyUpdateDto
+        {
+            Name = "Microsoft Xbox",
+            Description = "Big gaming company around the World"
+        };
+
+        // Act
+        var result = await service.UpdateAsync(testId, updateDto);
+
+        // Assert
+        var companyInDb = await context.Companies.FindAsync(testId);
+        Assert.True(result);
+        Assert.NotNull(companyInDb);
+        Assert.Equal(updateDto.Name, companyInDb.Name);
+    }
 }

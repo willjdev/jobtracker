@@ -601,5 +601,25 @@ public class CompanyServiceTests
         Assert.Null(companyInDb);
     }
 
-    
+    [Fact]
+    public async Task DeleteAsync_WhenCompanyDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var testId = 99;
+
+        // Act
+        var result = await service.DeleteAsync(testId);
+
+        // Assert
+        Assert.False(result);
+    }
 }

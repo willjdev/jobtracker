@@ -100,17 +100,20 @@ public class CompanyServiceTests
         await context.Companies.AddRangeAsync(companies);
         await context.SaveChangesAsync();
     }
+    private ApiDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        
+        return new ApiDbContext(options);
+    }
 
     [Fact]
     public async Task GetAllAsync_WhenCompaniesExist_ReturnPagedResponse()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
-
+        using var context = CreateContext();
         await SeedDatabaseAsync(context);
         
         var service = new CompanyService(context);
@@ -132,11 +135,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenDbIsEmpty_ReturnsEmptyPagedResponse()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{};
@@ -154,11 +153,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenFieldNameIsNull_ReturnsSortedById()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -178,11 +173,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenRecordsSetToOne_ReturnsTwoPages()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -204,11 +195,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenPagesetToTwo_ReturnsPageTwoResults()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -228,11 +215,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenNameDoesNotExist_ReturnsEmptyPagedResponse()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -252,11 +235,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenRecordsIsEighty_ReturnsRecordsIsFifty()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -275,11 +254,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenRecordsIsLessThanOne_ReturnsRecordsIsFour()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -298,11 +273,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenPageIsLessThanOne_ReturnsPageIsOne()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -321,11 +292,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -345,11 +312,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenSortedByNameDesc_ReturnsCompaniesInDescendingOrder()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -370,11 +333,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenFilterByLocation_ReturnsMatchingCompanies()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -394,11 +353,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenFilterByCreatedAt_ReturnsMatchingCompanies()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -418,11 +373,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenFilterByJobApplication_ReturnsMatchingCompanies()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -442,11 +393,7 @@ public class CompanyServiceTests
     public async Task GetByIdAsync_WhenCompanyExists_ReturnCompany()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         context.Add(new Company
         {
@@ -472,12 +419,7 @@ public class CompanyServiceTests
     public async Task GetByIdAsync_WhenCompanyDoesNotExist_ReturnsNull()
     {
         // Arrange
-
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         var service = new CompanyService(context);
 
@@ -492,11 +434,7 @@ public class CompanyServiceTests
     public async Task CreateAsync_WhenCompanyCreateDtoIsValid_ReturnsCompanyResponseDto()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
     
         var service = new CompanyService(context);
         var createDto = new CompanyCreateDto
@@ -524,11 +462,7 @@ public class CompanyServiceTests
     public async Task UpdateAsync_WhenUpdateSuccess_ReturnsTrue()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -554,11 +488,7 @@ public class CompanyServiceTests
     public async Task UpdateAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -581,11 +511,7 @@ public class CompanyServiceTests
     public async Task DeleteAsync_WhenCompanyExists_RemovesCompanyAndReturnsTrue()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 
@@ -605,11 +531,7 @@ public class CompanyServiceTests
     public async Task DeleteAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        using var context = CreateContext();
 
         await SeedDatabaseAsync(context);
 

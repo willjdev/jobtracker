@@ -63,7 +63,7 @@ public class ApplicationNotesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating application note");
-            return StatusCode(500, new { message = "An error occurred while creating applicatio note"});
+            return StatusCode(500, new { message = "An error occurred while creating application note"});
         }
 
     }
@@ -82,7 +82,7 @@ public class ApplicationNotesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating application note");
-            return StatusCode(500, new { message = "An error occurred while updating applicatio note"});
+            return StatusCode(500, new { message = "An error occurred while updating application note"});
         }
     }
 
@@ -100,7 +100,7 @@ public class ApplicationNotesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting applicatio note");
-            return StatusCode(500, new { message = "An error occurred while deleting applicatio note"});
+            return StatusCode(500, new { message = "An error occurred while deleting application note"});
         }
     }
 }

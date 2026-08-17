@@ -231,42 +231,24 @@ public class CompanyServiceTests
         Assert.Equal(0, result.TotalRecords);
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenRecordsIsEighty_ReturnsRecordsIsFifty()
+    [Theory]
+    [InlineData(-10, 4)]
+    [InlineData(80, 50)]
+    public async Task GetAllAsync_WhenRecordsIsOutsideAllowedRange_ClampsRecordsToValidLimits(int inputRecords, int expectedRecords)
     {
         // Arrange
         using var context = CreateContext();
-
         await SeedDatabaseAsync(context);
-
+        
         var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ Records = 80 };
+        var searchDto = new CompanySearchDto{ Records = inputRecords };
 
         // Act
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(50, result.Records);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_WhenRecordsIsLessThanOne_ReturnsRecordsIsFour()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ Records = -5 };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(4, result.Records);
+        Assert.Equal(expectedRecords, result.Records);
     }
 
     [Fact]

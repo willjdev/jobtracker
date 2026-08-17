@@ -40,10 +40,18 @@ public class JobApplicationService : IJobApplicationService
         
         query = search.FieldName?.ToLower() switch
         {
-            "position" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Position).ThenBy(c => c.Id) : query.OrderBy(c => c.Position).ThenBy(c => c.Id),
-            "status" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Status).ThenBy(c => c.Id) : query.OrderBy(c => c.Status).ThenBy(c => c.Id),
-            "appliedat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.AppliedAt).ThenBy(c => c.Id) : query.OrderBy(c => c.AppliedAt).ThenBy(c => c.Id),
-            "companyid" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CompanyId) : query.OrderBy(c => c.CompanyId),
+            "position" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.Position).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.Position).ThenBy(c => c.Id),
+            "status" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.Status).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.Status).ThenBy(c => c.Id),
+            "appliedat" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.AppliedAt).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.AppliedAt).ThenBy(c => c.Id),
+            "companyid" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.CompanyId).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.CompanyId).ThenBy(c => c.Id),
             _ => query.OrderBy(c => c.Id)
         };
 

@@ -36,9 +36,15 @@ public class CompanyService : ICompanyService
         
         query = search.FieldName?.ToLower() switch
         {
-            "name" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name),
-            "location" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.Location) : query.OrderBy(c => c.Location),
-            "createdat" => search.SortByType?.ToLower() == "desc" ? query.OrderByDescending(c => c.CreatedAt).ThenBy(c => c.Id) : query.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id),
+            "name" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.Name).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.Name).ThenBy(c => c.Id),
+            "location" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.Location).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.Location).ThenBy(c => c.Id),
+            "createdat" => search.SortByType?.ToLower() == "desc" 
+                ? query.OrderByDescending(c => c.CreatedAt).ThenBy(c => c.Id) 
+                : query.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id),
             _ => query.OrderBy(c => c.Id)
         };
 

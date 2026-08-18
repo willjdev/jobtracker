@@ -165,4 +165,24 @@ public class JobApplicationServiceTests
         Assert.Equal(0, result.TotalPages);
         Assert.Equal(0, result.TotalRecords);
     }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByCompanyId_ReturnsMatchingJobApplications()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ CompanyId = 1 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Single(result.Items);
+        Assert.Equal("Fullstack Developer", result.Items[0].Position);
+        Assert.Equal("Microsoft", result.Items[0].Company);
+        Assert.Equal(1, result.TotalRecords);
+    }
 }

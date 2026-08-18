@@ -119,4 +119,32 @@ public class JobApplicationServiceTests
         await context.Applications.AddRangeAsync(jobApplications);
         await context.SaveChangesAsync();
     }
+    private ApiDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        return new ApiDbContext(options);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenJobApplicationExist_ReturnsPagedResponse()
+    {
+        // Arrange 
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{};
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(3, result.TotalRecords);
+        Assert.All(result.Items, item => Assert.NotNull(item));
+    }    
 }

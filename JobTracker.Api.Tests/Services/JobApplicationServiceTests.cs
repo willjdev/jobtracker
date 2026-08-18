@@ -147,4 +147,22 @@ public class JobApplicationServiceTests
         Assert.Equal(3, result.TotalRecords);
         Assert.All(result.Items, item => Assert.NotNull(item));
     }    
+
+    [Fact]
+    public async Task GetAllAsync_WhenDbIsEmpty_ReturnsEmptyPagedResponse()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{};
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalPages);
+        Assert.Equal(0, result.TotalRecords);
+    }
 }

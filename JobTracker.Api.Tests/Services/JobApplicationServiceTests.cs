@@ -145,7 +145,7 @@ public class JobApplicationServiceTests
         Assert.Equal(3, result.Items.Count);
         Assert.Equal(1, result.Page);
         Assert.Equal(3, result.TotalRecords);
-        Assert.All(result.Items, item => Assert.NotNull(item));
+        Assert.All(result.Items, Assert.NotNull);
     }    
 
     [Fact]
@@ -166,23 +166,29 @@ public class JobApplicationServiceTests
         Assert.Equal(0, result.TotalRecords);
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByCompanyId_ReturnsMatchingJobApplications()
+    [Theory]
+    [InlineData(99, 0, null, null)]
+    [InlineData(1, 1, "Fullstack Developer", "Microsoft")]
+    public async Task GetAllAsync_WhenFilteringByCompanyId_ReturnsMatchingJobApplications(
+        int companyId, 
+        int expectedOutput, 
+        string? expectedPosition,
+        string? company)
     {
         // Arrange
         using var context = CreateContext();
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
-        var searchDto = new JobApplicationSearchDto{ CompanyId = 1 };
+        var searchDto = new JobApplicationSearchDto{ CompanyId = companyId };
 
         // Act
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
-        Assert.Single(result.Items);
-        Assert.Equal("Fullstack Developer", result.Items[0].Position);
-        Assert.Equal("Microsoft", result.Items[0].Company);
-        Assert.Equal(1, result.TotalRecords);
+        Assert.Equal(expectedOutput, result.Items.Count);
+        Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
+        Assert.Equal(company, result.Items.FirstOrDefault()?.Company);
+        Assert.Equal(expectedOutput, result.TotalRecords);
     }
 }

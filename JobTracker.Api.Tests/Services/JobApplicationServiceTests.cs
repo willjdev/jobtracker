@@ -200,8 +200,7 @@ public class JobApplicationServiceTests
         string? expectedPosition,
         int expectedCount,
         int expectedTotalPages,
-        int? expectedCompanyId
-    )
+        int? expectedCompanyId)
     {
         // Arrange
         using var context = CreateContext();
@@ -218,5 +217,30 @@ public class JobApplicationServiceTests
         Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
         Assert.Equal(expectedTotalPages, result.TotalPages);
         Assert.Equal(expectedCompanyId, result.Items.FirstOrDefault()?.CompanyId);
+    }
+
+    [Theory]
+    [InlineData("Applied", 3, 3, 1)]
+    [InlineData("Accepted", 0, 0, null)]
+    public async Task GetAllAsync_WhenFilteringByStatus_ReturnsMatchingJobApplications(
+        string status,
+        int expectedCount,
+        int expectedTotalRecords,
+        int? expectedFirstItemCompanyId)
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service =  new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ Status = status };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(expectedCount, result.Items.Count);
+        Assert.Equal(expectedTotalRecords, result.TotalRecords);
+        Assert.Equal(expectedFirstItemCompanyId, result.Items.FirstOrDefault()?.CompanyId);
     }
 }

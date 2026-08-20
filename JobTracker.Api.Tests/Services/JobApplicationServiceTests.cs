@@ -191,4 +191,32 @@ public class JobApplicationServiceTests
         Assert.Equal(company, result.Items.FirstOrDefault()?.Company);
         Assert.Equal(expectedOutput, result.TotalRecords);
     }
+
+    [Theory]
+    [InlineData(".NET Developer", ".NET Developer", 1, 1, 3)]
+    [InlineData("Ruby Developer", null, 0, 0, null)]
+    public async Task GetAllAsync_WhenFilteringByPosition_ReturnsMatchingJobApplications(
+        string position,
+        string? expectedPosition,
+        int expectedCount,
+        int expectedTotalPages,
+        int? expectedCompanyId
+    )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ Position = position };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(expectedCount, result.Items.Count);
+        Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
+        Assert.Equal(expectedTotalPages, result.TotalPages);
+        Assert.Equal(expectedCompanyId, result.Items.FirstOrDefault()?.CompanyId);
+    }
 }

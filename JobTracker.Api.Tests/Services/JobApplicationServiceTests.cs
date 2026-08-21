@@ -50,7 +50,7 @@ public class JobApplicationServiceTests
             {
                Id = 2,
                Position = "Game Developer",
-               AppliedAt = new DateTime(2026, 8, 18, 7, 40, 0),
+               AppliedAt = new DateTime(2026, 8, 18, 0, 0, 0),
                JobUrl = "https//www.job.com",
                CompanyId = 2,
                Company = new Company
@@ -60,7 +60,7 @@ public class JobApplicationServiceTests
                     Description = "Game Company",
                     Website = "www.santamonica.com",
                     Location = "Remote",
-                    CreatedAt = new DateTime(2026, 7, 20, 7, 0, 0),
+                    CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0),
                },
                ApplicationNotes = new List<ApplicationNote>
                {
@@ -242,5 +242,32 @@ public class JobApplicationServiceTests
         Assert.Equal(expectedCount, result.Items.Count);
         Assert.Equal(expectedTotalRecords, result.TotalRecords);
         Assert.Equal(expectedFirstItemCompanyId, result.Items.FirstOrDefault()?.CompanyId);
+    }
+
+    [Theory]
+    [InlineData("2026-08-18T00:00:00", 1, "Game Developer", 2, 1)]
+    [InlineData("2026-11-18T00:00:00", 0, null, null, 0)]
+    public async Task GetAllAsync_WhenFilteringByAppliedAt_ReturnsMatchingJobApplications(
+        DateTime date,
+        int expectedItemsCount,
+        string? expectedPosition,
+        int? expectedCompanyId,
+        int expectedTotalRecords)
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ AppliedAt = date };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(expectedItemsCount, result.Items.Count);
+        Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
+        Assert.Equal(expectedCompanyId, result.Items.FirstOrDefault()?.CompanyId);
+        Assert.Equal(expectedTotalRecords, result.TotalRecords);
     }
 }

@@ -214,9 +214,19 @@ public class JobApplicationServiceTests
 
         // Assert
         Assert.Equal(expectedCount, result.Items.Count);
-        Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
         Assert.Equal(expectedTotalPages, result.TotalPages);
-        Assert.Equal(expectedCompanyId, result.Items.FirstOrDefault()?.CompanyId);
+
+        if (expectedCount > 0)
+        {
+            var item = Assert.Single(result.Items);
+
+            Assert.Equal(expectedPosition, item.Position);
+            Assert.Equal(expectedCompanyId, item.CompanyId);
+        }
+        else
+        {
+            Assert.Empty(result.Items);
+        }
     }
 
     [Theory]

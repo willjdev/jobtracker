@@ -167,11 +167,12 @@ public class JobApplicationServiceTests
     }
 
     [Theory]
-    [InlineData(99, 0, null, null)]
-    [InlineData(1, 1, "Fullstack Developer", "Microsoft")]
+    [InlineData(99, 0, 0, null, null)]
+    [InlineData(1, 1, 1, "Fullstack Developer", "Microsoft")]
     public async Task GetAllAsync_WhenFilteringByCompanyId_ReturnsMatchingJobApplications(
         int companyId, 
-        int expectedOutput, 
+        int expectedCount, 
+        int expectedTotalRecords,
         string? expectedPosition,
         string? company)
     {
@@ -186,10 +187,20 @@ public class JobApplicationServiceTests
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
-        Assert.Equal(expectedOutput, result.Items.Count);
-        Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
-        Assert.Equal(company, result.Items.FirstOrDefault()?.Company);
-        Assert.Equal(expectedOutput, result.TotalRecords);
+        Assert.Equal(expectedCount, result.Items.Count);
+        Assert.Equal(expectedTotalRecords, result.TotalRecords);
+
+        if (expectedCount > 0)
+        {
+            var item = Assert.Single(result.Items);
+
+            Assert.Equal(expectedPosition, item.Position);
+            Assert.Equal(company, item.Company);
+        }
+        else
+        {
+            Assert.Empty(result.Items);
+        }
     }
 
     [Theory]

@@ -113,6 +113,40 @@ public class JobApplicationServiceTests
                         JobApplicationId = 3
                     }
                 }
+            },
+            new()
+            {
+                Id = 4,
+                Position = ".NET Developer",
+                AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
+                JobUrl = "https//www.job.com",
+                CompanyId = 4,
+                Company = new Company
+                {
+                    Id = 4,
+                    Name = "Microsoft Netherlands",
+                    Description = "Big Company",
+                    Website = "www.microsoft.com",
+                    Location = "Netherlands",
+                    CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
+                },
+                ApplicationNotes = new List<ApplicationNote>
+                {
+                    new()
+                    {
+                        Id = 7,
+                        Content = "Sent an email to recruiter",
+                        CreatedAt = new DateTime(2026, 8, 10, 9, 0, 0),
+                        JobApplicationId = 4
+                    },
+                    new()
+                    {
+                        Id = 8,
+                        Content = "Meeting tomorrow!!",
+                        CreatedAt = new DateTime(2026, 8, 14, 10, 0, 0),
+                        JobApplicationId = 4
+                    }
+                }
             }
         };
 
@@ -142,9 +176,9 @@ public class JobApplicationServiceTests
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
-        Assert.Equal(3, result.Items.Count);
+        Assert.Equal(4, result.Items.Count);
         Assert.Equal(1, result.Page);
-        Assert.Equal(3, result.TotalRecords);
+        Assert.Equal(4, result.TotalRecords);
         Assert.All(result.Items, Assert.NotNull);
     }    
 
@@ -204,7 +238,7 @@ public class JobApplicationServiceTests
     }
 
     [Theory]
-    [InlineData(".NET Developer", ".NET Developer", 1, 1, 3)]
+    [InlineData(".NET Developer", ".NET Developer", 2, 1, 3)]
     [InlineData("Ruby Developer", null, 0, 0, null)]
     public async Task GetAllAsync_WhenFilteringByPosition_ReturnsMatchingJobApplications(
         string position,
@@ -229,7 +263,7 @@ public class JobApplicationServiceTests
 
         if (expectedCount > 0)
         {
-            var item = Assert.Single(result.Items);
+            var item = result.Items[0];
 
             Assert.Equal(expectedPosition, item.Position);
             Assert.Equal(expectedCompanyId, item.CompanyId);
@@ -241,7 +275,7 @@ public class JobApplicationServiceTests
     }
 
     [Theory]
-    [InlineData("Applied", 3, 3, 1)]
+    [InlineData("Applied", 4, 4, 1)]
     [InlineData("Accepted", 0, 0, null)]
     public async Task GetAllAsync_WhenFilteringByStatus_ReturnsMatchingJobApplications(
         string status,

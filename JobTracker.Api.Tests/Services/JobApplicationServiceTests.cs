@@ -266,8 +266,19 @@ public class JobApplicationServiceTests
 
         // Assert
         Assert.Equal(expectedItemsCount, result.Items.Count);
-        Assert.Equal(expectedPosition, result.Items.FirstOrDefault()?.Position);
-        Assert.Equal(expectedCompanyId, result.Items.FirstOrDefault()?.CompanyId);
         Assert.Equal(expectedTotalRecords, result.TotalRecords);
+
+        if (expectedItemsCount > 0)
+        {
+            var item = Assert.Single(result.Items);
+
+            Assert.Equal(expectedPosition, item.Position);
+            Assert.Equal(expectedCompanyId, item.CompanyId);
+        }
+        else
+        {
+            Assert.Empty(result.Items);
+            Assert.Equal(0, result.TotalPages);
+        }
     }
 }

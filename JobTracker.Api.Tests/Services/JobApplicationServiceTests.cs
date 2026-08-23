@@ -347,4 +347,32 @@ public class JobApplicationServiceTests
             Assert.Equal(0, result.TotalPages);
         }
     }
+
+    [Theory]
+    [InlineData("position", "asc", new[] {3, 4, 1, 2})]
+    [InlineData("position", "desc", new[] {2, 1, 3, 4})]
+    [InlineData(null, null, new[] {1, 2, 3, 4})]
+    public async Task GetAllAsync_WhenSortingByFieldName_ReturnsSortedItems(
+        string? fieldName,
+        string? sortByType,
+        int[] expectedOrder
+        )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        var resultOrder = result.Items
+            .Select(item => item.Id)
+            .ToArray();
+
+        Assert.Equal(expectedOrder, resultOrder);
+    }   
 }

@@ -84,6 +84,7 @@ public class JobApplicationServiceTests
             {
                 Id = 3,
                 Position = ".NET Developer",
+                Status = "Meeting",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 3,
@@ -118,6 +119,7 @@ public class JobApplicationServiceTests
             {
                 Id = 4,
                 Position = ".NET Developer",
+                Status = "Interview",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 4,
@@ -275,7 +277,7 @@ public class JobApplicationServiceTests
     }
 
     [Theory]
-    [InlineData("Applied", 4, 4, 1)]
+    [InlineData("Applied", 2, 2, 1)]
     [InlineData("Accepted", 0, 0, null)]
     public async Task GetAllAsync_WhenFilteringByStatus_ReturnsMatchingJobApplications(
         string status,
@@ -374,5 +376,32 @@ public class JobApplicationServiceTests
             .ToArray();
 
         Assert.Equal(expectedOrder, resultOrder);
-    }   
+    }  
+
+    [Theory]
+    [InlineData("status", "asc", new[] {1, 2, 4, 3})] 
+    [InlineData("status", "desc", new[] {3, 4, 1, 2})]
+    public async Task GetAllAsync_WhenSortingByStatus_ReturnsSortedItems(
+        string fieldName,
+        string sortByType,
+        int[] expectedOrder
+        )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        var resultOrder = result.Items
+            .Select(item => item.Id)
+            .ToArray();
+        
+        Assert.Equal(expectedOrder, resultOrder);
+    }
 }

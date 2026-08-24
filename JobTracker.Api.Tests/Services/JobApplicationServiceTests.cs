@@ -87,16 +87,7 @@ public class JobApplicationServiceTests
                 Status = "Meeting",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
                 JobUrl = "https//www.job.com",
-                CompanyId = 3,
-                Company = new Company
-                {
-                    Id = 3,
-                    Name = "Microsoft Colombia",
-                    Description = "Big Company",
-                    Website = "www.microsoft.com",
-                    Location = "Colombia",
-                    CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0)
-                },
+                CompanyId = 1,
                 ApplicationNotes = new List<ApplicationNote>
                 {
                     new()
@@ -204,7 +195,7 @@ public class JobApplicationServiceTests
 
     [Theory]
     [InlineData(99, 0, 0, null, null)]
-    [InlineData(1, 1, 1, "Fullstack Developer", "Microsoft")]
+    [InlineData(1, 2, 2, "Fullstack Developer", "Microsoft")]
     public async Task GetAllAsync_WhenFilteringByCompanyId_ReturnsMatchingJobApplications(
         int companyId, 
         int expectedCount, 
@@ -228,7 +219,7 @@ public class JobApplicationServiceTests
 
         if (expectedCount > 0)
         {
-            var item = Assert.Single(result.Items);
+            var item = result.Items[0];
 
             Assert.Equal(expectedPosition, item.Position);
             Assert.Equal(company, item.Company);
@@ -240,7 +231,7 @@ public class JobApplicationServiceTests
     }
 
     [Theory]
-    [InlineData(".NET Developer", ".NET Developer", 2, 1, 3)]
+    [InlineData(".NET Developer", ".NET Developer", 2, 1, 1)]
     [InlineData("Ruby Developer", null, 0, 0, null)]
     public async Task GetAllAsync_WhenFilteringByPosition_ReturnsMatchingJobApplications(
         string position,
@@ -430,5 +421,32 @@ public class JobApplicationServiceTests
             .ToArray();
         
         Assert.Equal(expectedOrder, resultOrder);
+    }
+
+    [Theory]
+    [InlineData("companyid", "asc", new[] {1, 3, 2, 4})]
+    [InlineData("companyid", "desc", new[] {4, 2, 1, 3})]
+    public async Task GetAllAsync_WhenSortingByCompanyId_ReturnSortedItems(
+        string fieldName,
+        string sortByType,
+        int[] expectedOrder
+        )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        var resultOrder = result.Items
+            .Select(item => item.Id)
+            .ToArray();
+
+        Assert.Equal(expectedOrder, resultOrder); 
     }
 }

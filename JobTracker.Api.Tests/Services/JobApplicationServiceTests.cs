@@ -120,7 +120,7 @@ public class JobApplicationServiceTests
                 Id = 4,
                 Position = ".NET Developer",
                 Status = "Interview",
-                AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
+                AppliedAt = new DateTime(2026, 8, 10, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 4,
                 Company = new Company
@@ -382,6 +382,33 @@ public class JobApplicationServiceTests
     [InlineData("status", "asc", new[] {1, 2, 4, 3})] 
     [InlineData("status", "desc", new[] {3, 4, 1, 2})]
     public async Task GetAllAsync_WhenSortingByStatus_ReturnsSortedItems(
+        string fieldName,
+        string sortByType,
+        int[] expectedOrder
+        )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        var resultOrder = result.Items
+            .Select(item => item.Id)
+            .ToArray();
+        
+        Assert.Equal(expectedOrder, resultOrder);
+    }
+
+    [Theory]
+    [InlineData("appliedat", "asc", new[] {4, 1, 2, 3})]
+    [InlineData("appliedat", "desc", new[] {3, 2, 1, 4})]
+    public async Task GetAllAsync_WhenSortingByAppliedAt_ReturnsSortedItems(
         string fieldName,
         string sortByType,
         int[] expectedOrder

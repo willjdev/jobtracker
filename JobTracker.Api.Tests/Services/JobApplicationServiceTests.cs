@@ -449,4 +449,27 @@ public class JobApplicationServiceTests
 
         Assert.Equal(expectedOrder, resultOrder); 
     }
+
+    [Theory]
+    [InlineData(2, 2)]
+    [InlineData(0, 4)]
+    [InlineData(70, 50)]
+    public async Task GetAllAsync_WhenRecordsIsOutsideAllowedRange_ClampsRecordsToValidLimits(
+        int inputRecords,
+        int expectedRecords
+        )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ Records = inputRecords };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(expectedRecords, result.Records);
+    }
 }

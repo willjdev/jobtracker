@@ -472,4 +472,21 @@ public class JobApplicationServiceTests
         // Assert
         Assert.Equal(expectedRecords, result.Records);
     }
+
+    [Fact]
+    public async Task GetAllAsync_WhenPageIsLessThanOne_ClampsToOne()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ Page = 0 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(1, result.Page);
+    }
 }

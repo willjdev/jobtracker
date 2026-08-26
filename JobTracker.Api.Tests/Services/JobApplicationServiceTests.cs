@@ -489,4 +489,24 @@ public class JobApplicationServiceTests
         // Assert
         Assert.Equal(1, result.Page);
     }
+
+    [Fact]
+    public async Task GetAllAsync_WhenPageIsTwo_ReturnPageTwoItems()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var searchDto = new JobApplicationSearchDto{ Page = 2, Records = 2 };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(".NET Developer", result.Items[0].Position);
+        Assert.Equal(4, result.Items[1].CompanyId);
+
+    }
 }

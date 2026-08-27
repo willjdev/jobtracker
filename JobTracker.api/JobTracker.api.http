@@ -57,7 +57,7 @@ POST {{Host}}/api/applications
 Content-Type: application/json
 
 {
-    "Position": "Game Developer junior",
+    "Position": "Senior Game Developer",
     "JobUrl": "https://www.job.com",
     "CompanyId": 5
 }

@@ -512,7 +512,7 @@ public class JobApplicationServiceTests
     [Theory]
     [InlineData(2, "Game Developer", 2, 1)]
     [InlineData(99, null, null, 0)]
-    public async Task GetByIdAsync_GivenUd_ReturnsExpectedItem(
+    public async Task GetByIdAsync_GivenId_ReturnsExpectedItem(
         int inputId,
         string? expectedPosition,
         int? expectedCompanyId,
@@ -538,5 +538,30 @@ public class JobApplicationServiceTests
         {
             Assert.Null(result);
         }
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenCompanyExists_ReturnsCreatedJobApplicationResponseDto()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var jobDto = new JobApplicationCreateDto
+        {
+            Position = "Senior Game Developer",
+            JobUrl = "https://www.job.com",
+            CompanyId = 1
+        };
+
+        // Act
+        var result = await service.CreateAsync(jobDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(jobDto.Position, result?.Position);
+        Assert.Equal(jobDto.JobUrl, result?.JobUrl);
+        Assert.Equal(jobDto.CompanyId, result?.CompanyId);
     }
 }

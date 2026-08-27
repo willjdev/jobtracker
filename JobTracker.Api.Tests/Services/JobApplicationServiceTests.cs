@@ -564,4 +564,28 @@ public class JobApplicationServiceTests
         Assert.Equal(jobDto.JobUrl, result?.JobUrl);
         Assert.Equal(jobDto.CompanyId, result?.CompanyId);
     }
+
+    [Fact]
+    public async Task CreateAsync_WhenCompanyDoesNotExists_ReturnsNull()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var jobDto = new JobApplicationCreateDto
+        {
+            Position = "Senior Game Developer",
+            JobUrl = "https://www.job.com",
+            CompanyId = 99
+        };
+
+        // Act
+        var result = await service.CreateAsync(jobDto);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    
 }

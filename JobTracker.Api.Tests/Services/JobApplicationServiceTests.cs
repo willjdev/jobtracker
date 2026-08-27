@@ -507,6 +507,36 @@ public class JobApplicationServiceTests
         Assert.Equal(2, result.Items.Count);
         Assert.Equal(".NET Developer", result.Items[0].Position);
         Assert.Equal(4, result.Items[1].CompanyId);
+    }
 
+    [Theory]
+    [InlineData(2, "Game Developer", 2, 1)]
+    [InlineData(99, null, null, 0)]
+    public async Task GetByIdAsync_GivenUd_ReturnsExpectedItem(
+        int inputId,
+        string? expectedPosition,
+        int? expectedCompanyId,
+        int expectedItemsCount
+        )
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        
+        // Act
+        var result = await service.GetByIdAsync(inputId);
+
+        // Assert
+        if (expectedItemsCount > 0)
+        {
+            Assert.Equal(expectedPosition, result?.Position);
+            Assert.Equal(expectedCompanyId, result?.CompanyId);
+        }
+        else
+        {
+            Assert.Null(result);
+        }
     }
 }

@@ -588,7 +588,7 @@ public class JobApplicationServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenJobApplicationExists_ReturnsTrue()
+    public async Task UpdateAsync_WhenJobApplicationExists_UpdatesAndReturnsTrue()
     {
         // Arrange
         using var context = CreateContext();

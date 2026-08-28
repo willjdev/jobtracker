@@ -606,6 +606,23 @@ public class JobApplicationServiceTests
         Assert.True(result);
         Assert.NotNull(updatedJobApplication);
         Assert.Equal(jobUpdate.Position, updatedJobApplication.Position);
+    }
 
+    [Fact]
+    public async Task UpdateAsync_WhenCompanyDoesNotExists_ReturnsFalse()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var jobId = 99;
+        var jobUpdate = new JobApplicationUpdateDto{ Position = "Senior Game Developer" };
+
+        // Act
+        var result = await service.UpdateAsync(jobId, jobUpdate);
+
+        // Assert
+        Assert.False(result);
     }
 }

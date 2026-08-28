@@ -587,5 +587,25 @@ public class JobApplicationServiceTests
         Assert.Null(result);
     }
 
-    
+    [Fact]
+    public async Task UpdateAsync_WhenCompanyExists_ReturnsTrue()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        int jobId = 1;
+        var jobUpdate = new JobApplicationUpdateDto{ Position = "Senior Fullstack Developer" };
+
+        // Act
+        var result = await service.UpdateAsync(jobId, jobUpdate);
+
+        // Assert
+        var updatedJobApplication = await context.Applications.FindAsync(jobId);
+        Assert.True(result);
+        Assert.NotNull(updatedJobApplication);
+        Assert.Equal(jobUpdate.Position, updatedJobApplication.Position);
+
+    }
 }

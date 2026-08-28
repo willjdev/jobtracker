@@ -588,7 +588,7 @@ public class JobApplicationServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenCompanyExists_ReturnsTrue()
+    public async Task UpdateAsync_WhenJobApplicationExists_ReturnsTrue()
     {
         // Arrange
         using var context = CreateContext();
@@ -609,7 +609,7 @@ public class JobApplicationServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenCompanyDoesNotExists_ReturnsFalse()
+    public async Task UpdateAsync_WhenJobApplicationDoesNotExists_ReturnsFalse()
     {
         // Arrange
         using var context = CreateContext();

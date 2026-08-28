@@ -625,4 +625,23 @@ public class JobApplicationServiceTests
         // Assert
         Assert.False(result);
     }
+
+    [Fact]
+    public async Task DeleteAsync_WhenJobApplicationExists_DeletesAndReturnsTrue()
+    {
+        // Arrange 
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var jobId = 1;
+
+        // Act
+        var result = await service.DeleteAsync(jobId);
+
+        // Assert
+        var deletedJobApplication = await context.Applications.FindAsync(jobId);
+        Assert.True(result);
+        Assert.Null(deletedJobApplication);
+    }
 }

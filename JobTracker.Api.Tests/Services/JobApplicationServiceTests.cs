@@ -258,10 +258,11 @@ public class JobApplicationServiceTests
 
         if (expectedCount > 0)
         {
-            var item = result.Items[0];
-
-            Assert.Equal(expectedPosition, item.Position);
-            Assert.Equal(expectedCompanyId, item.CompanyId);
+            Assert.Equal(expectedCompanyId, result.Items[0].CompanyId);
+            Assert.All(result.Items, item =>
+            {
+                Assert.Equal(expectedPosition, item.Position);
+            });
         }
         else
         {

@@ -10,6 +10,36 @@ public class JobApplicationServiceTests
 {
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
+        var companies = new List<Company>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Microsoft",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Holand",
+                CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Santa Monica",
+                Description = "Game Company",
+                Website = "www.santamonica.com",
+                Location = "Remote",
+                CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0),
+            },
+            new()
+            {
+                Id = 4,
+                Name = "Microsoft Netherlands",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Netherlands",
+                CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
+            }
+        };
         var jobApplications = new List<JobApplication>
         {
             new()
@@ -19,15 +49,6 @@ public class JobApplicationServiceTests
                 JobUrl = "https://www.job.com",
                 AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
                 CompanyId = 1,
-                Company = new Company
-                {
-                    Id = 1,
-                    Name = "Microsoft",
-                    Description = "Big Company",
-                    Website = "www.microsoft.com",
-                    Location = "Holand",
-                    CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
-                },
                 ApplicationNotes = new List<ApplicationNote>
                 {
                     new()
@@ -53,15 +74,6 @@ public class JobApplicationServiceTests
                AppliedAt = new DateTime(2026, 8, 18, 0, 0, 0),
                JobUrl = "https//www.job.com",
                CompanyId = 2,
-               Company = new Company
-               {
-                    Id = 2,
-                    Name = "Santa Monica",
-                    Description = "Game Company",
-                    Website = "www.santamonica.com",
-                    Location = "Remote",
-                    CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0),
-               },
                ApplicationNotes = new List<ApplicationNote>
                {
                    new()
@@ -114,15 +126,6 @@ public class JobApplicationServiceTests
                 AppliedAt = new DateTime(2026, 8, 10, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 4,
-                Company = new Company
-                {
-                    Id = 4,
-                    Name = "Microsoft Netherlands",
-                    Description = "Big Company",
-                    Website = "www.microsoft.com",
-                    Location = "Netherlands",
-                    CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
-                },
                 ApplicationNotes = new List<ApplicationNote>
                 {
                     new()
@@ -143,6 +146,7 @@ public class JobApplicationServiceTests
             }
         };
 
+        await context.Companies.AddRangeAsync(companies);
         await context.Applications.AddRangeAsync(jobApplications);
         await context.SaveChangesAsync();
     }

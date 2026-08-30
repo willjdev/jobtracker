@@ -552,6 +552,28 @@ public class JobApplicationServiceTests
     }
 
     [Fact]
+    public async Task GetByIdAsync_WhenJobApplicationHasNotes_ReturnsItemWithNotes()
+    {
+        // Arrange
+        using var context = CreateContext();
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context);
+        var jobId = 1;
+
+        // Act
+        var result = await service.GetByIdAsync(jobId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Notes?.Count);
+        Assert.All(result.Notes, item =>
+        {
+            Assert.NotNull(item);
+        });
+    }
+
+    [Fact]
     public async Task CreateAsync_WhenCompanyExists_ReturnsCreatedJobApplicationResponseDto()
     {
         // Arrange

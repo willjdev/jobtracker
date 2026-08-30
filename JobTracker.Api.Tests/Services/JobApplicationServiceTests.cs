@@ -566,8 +566,10 @@ public class JobApplicationServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Notes?.Count);
-        Assert.All(result.Notes, item =>
+        var notes = result.Notes;
+        Assert.NotNull(notes);
+        Assert.Equal(2, notes.Count);
+        Assert.All(notes, item =>
         {
             Assert.NotNull(item);
         });

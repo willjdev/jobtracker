@@ -574,6 +574,10 @@ public class JobApplicationServiceTests
         Assert.Equal(jobDto.Position, result?.Position);
         Assert.Equal(jobDto.JobUrl, result?.JobUrl);
         Assert.Equal(jobDto.CompanyId, result?.CompanyId);
+        
+        var createdJob = await context.Applications.FirstOrDefaultAsync(j => j.Position == jobDto.Position);
+        Assert.NotNull(createdJob);
+        Assert.Equal(jobDto.CompanyId, createdJob.CompanyId);
     }
 
     [Fact]

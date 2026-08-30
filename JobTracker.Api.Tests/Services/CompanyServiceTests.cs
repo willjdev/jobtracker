@@ -150,6 +150,46 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto { Name = "Santa Monica" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Santa Monica", result.Items[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenNameDoesNotExist_ReturnsEmptyPagedResponse()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Name = "Naughty Dog" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalPages);
+        Assert.Equal(0, result.TotalRecords);
+    }
+
+    [Fact]
     public async Task GetAllAsync_WhenFieldNameIsNull_ReturnsSortedById()
     {
         // Arrange
@@ -211,25 +251,7 @@ public class CompanyServiceTests
         Assert.Equal(2, result.Page);
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenNameDoesNotExist_ReturnsEmptyPagedResponse()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ Name = "Naughty Dog" };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.Empty(result.Items);
-        Assert.Equal(0, result.TotalPages);
-        Assert.Equal(0, result.TotalRecords);
-    }
+    
 
     [Theory]
     [InlineData(-10, 4)]
@@ -270,25 +292,7 @@ public class CompanyServiceTests
         Assert.Equal(1, result.Page);
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByName_ReturnsMatchingCompanies()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto { Name = "Santa Monica" };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal("Santa Monica", result.Items[0].Name);
-    }
+    
 
     [Fact]
     public async Task GetAllAsync_WhenSortedByNameDesc_ReturnsCompaniesInDescendingOrder()

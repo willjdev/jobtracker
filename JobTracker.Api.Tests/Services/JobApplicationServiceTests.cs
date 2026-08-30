@@ -299,6 +299,10 @@ public class JobApplicationServiceTests
             var item = result.Items[0];
 
             Assert.Equal(expectedFirstItemCompanyId, item.CompanyId);
+            Assert.All(result.Items, item =>
+            {
+                Assert.Equal(status, item.Status);
+            });
         }
         else
         {

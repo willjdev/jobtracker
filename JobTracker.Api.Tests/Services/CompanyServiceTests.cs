@@ -127,7 +127,7 @@ public class CompanyServiceTests
         Assert.Equal(3, result.TotalRecords);
         Assert.Equal(1, result.TotalPages);
         Assert.Equal(3, result.Items.Count);
-        Assert.All(result.Items, item => Assert.NotNull(item));
+        Assert.All(result.Items, Assert.NotNull);
         Assert.Equal("Santa Monica", result.Items[1].Name);
     }
 

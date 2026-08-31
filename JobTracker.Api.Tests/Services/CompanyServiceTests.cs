@@ -109,12 +109,17 @@ public class CompanyServiceTests
         return new ApiDbContext(options);
     }
 
+    private async Task<ApiDbContext> CreateSeededContextAsync()
+    {
+        var context = CreateContext();
+        await SeedDatabaseAsync(context);
+        return context;
+    }
     [Fact]
     public async Task GetAllAsync_WhenCompaniesExist_ReturnPagedResponse()
     {
         // Arrange
-        using var context = CreateContext();
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
         
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{};
@@ -187,6 +192,66 @@ public class CompanyServiceTests
         Assert.Empty(result.Items);
         Assert.Equal(0, result.TotalPages);
         Assert.Equal(0, result.TotalRecords);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByLocation_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ Location = "Remote" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Santa Monica", result.Items[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByCreatedAt_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0) };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Microsoft Colombia", result.Items[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenFilterByJobApplication_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ JobApplicationPosition = ".NET" };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Items.Count);
+        Assert.All(result.Items, item => Assert.StartsWith("M", item.Name));
     }
 
     [Fact]
@@ -313,66 +378,6 @@ public class CompanyServiceTests
         Assert.Equal(2, result.Items.Count);
         Assert.Equal("Microsoft Colombia", result.Items[0].Name);
         Assert.Equal("Microsoft", result.Items[1].Name);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByLocation_ReturnsMatchingCompanies()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ Location = "Remote" };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal("Santa Monica", result.Items[0].Name);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByCreatedAt_ReturnsMatchingCompanies()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0) };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal("Microsoft Colombia", result.Items[0].Name);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByJobApplication_ReturnsMatchingCompanies()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ JobApplicationPosition = ".NET" };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Items.Count);
-        Assert.All(result.Items, item => Assert.StartsWith("M", item.Name));
     }
     
     [Fact]

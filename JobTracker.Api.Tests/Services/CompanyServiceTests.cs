@@ -108,13 +108,13 @@ public class CompanyServiceTests
         
         return new ApiDbContext(options);
     }
-
     private async Task<ApiDbContext> CreateSeededContextAsync()
     {
         var context = CreateContext();
         await SeedDatabaseAsync(context);
         return context;
     }
+
     [Fact]
     public async Task GetAllAsync_WhenCompaniesExist_ReturnPagedResponse()
     {
@@ -222,24 +222,38 @@ public class CompanyServiceTests
         }
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByCreatedAt_ReturnsMatchingCompanies()
+    [Theory]
+    [InlineData("2026-08-02T00:00:00", 1, "Microsoft Colombia")]
+    [InlineData("2026-11-22T00:00:00", 0, null)]
+    public async Task GetAllAsync_WhenFilteringByCreatedAt_ReturnsExpectedResults(
+        DateTime date,
+        int expectedTotalRecords,
+        string? expectedCompanyName
+        )
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0) };
+        var searchDto = new CompanySearchDto{ CreatedAt = date };
 
         // Act
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal("Microsoft Colombia", result.Items[0].Name);
+        if (expectedCompanyName is not null)
+        {
+            var item = Assert.Single(result.Items);
+            Assert.Equal(expectedCompanyName, item.Name);
+            Assert.Equal(expectedTotalRecords, result.TotalRecords);
+        }
+        else
+        {
+            Assert.Empty(result.Items);
+            Assert.Equal(expectedTotalRecords, result.TotalRecords);
+        }
+
     }
 
     [Fact]

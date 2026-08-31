@@ -189,24 +189,37 @@ public class CompanyServiceTests
         }
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByLocation_ReturnsMatchingCompanies()
+    [Theory]
+    [InlineData("Remote", "Santa Monica")]
+    [InlineData("Japan", null)]
+    public async Task GetAllAsync_WhenFilteringByLocation_ReturnsExpectedResults(
+        string location,
+        string? expectedCompanyName
+        )
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ Location = "Remote" };
+        var searchDto = new CompanySearchDto{ Location = location };
 
         // Act
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal("Santa Monica", result.Items[0].Name);
+
+        if (expectedCompanyName is not null)
+        {
+            var item = Assert.Single(result.Items);
+            Assert.Equal(expectedCompanyName, item.Name);
+            Assert.Equal(1, result.TotalRecords);
+        }
+        else
+        {
+            Assert.Empty(result.Items);
+            Assert.Equal(0, result.TotalRecords);
+        }
     }
 
     [Fact]

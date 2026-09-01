@@ -341,6 +341,33 @@ public class CompanyServiceTests
         Assert.Equal(expectedOrder, resultOrder);
     }
 
+    [Theory]
+    [InlineData("createdat", "asc", new[] {1, 2, 3})]
+    [InlineData("createdat", "asc", new[] {1, 2, 3})]
+    [InlineData(null, null, new[] {1, 2, 3})]
+    public async Task GetAllAsync_WhenSortingByCreatedAt_ReturnsExpectedOrder(
+        string? fieldName,
+        string? sortByType,
+        int[] expectedOrder
+        )
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        //Assert
+        var resultOrder = result.Items
+            .Select(item => item.Id)
+            .ToArray();
+        
+        Assert.Equal(expectedOrder, resultOrder);
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenRecordsSetToOne_ReturnsTwoPages()
     {

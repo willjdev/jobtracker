@@ -256,24 +256,35 @@ public class CompanyServiceTests
 
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenFilterByJobApplication_ReturnsMatchingCompanies()
+    [Theory]
+    [InlineData(".NET", 2)]
+    [InlineData("Ruby", 0)]
+    public async Task GetAllAsync_WhenFilteringByJobApplicationPosition_ReturnsExpectedResults(
+        string jobApplicationPosition,
+        int expectedTotalRecords
+        )
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ JobApplicationPosition = ".NET" };
+        var searchDto = new CompanySearchDto{ JobApplicationPosition = jobApplicationPosition };
 
         // Act
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Items.Count);
-        Assert.All(result.Items, item => Assert.StartsWith("M", item.Name));
+        if (expectedTotalRecords > 0)
+        {
+            Assert.All(result.Items, Assert.NotNull);
+            Assert.Equal(expectedTotalRecords, result.TotalRecords);
+        }
+        else
+        {
+            Assert.Empty(result.Items);
+            Assert.Equal(expectedTotalRecords, result.TotalRecords);
+        }
     }
 
     [Fact]

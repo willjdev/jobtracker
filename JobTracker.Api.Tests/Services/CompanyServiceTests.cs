@@ -314,24 +314,31 @@ public class CompanyServiceTests
         Assert.Equal(expectedOrder, resultOrder);
     }
 
-    [Fact]
-    public async Task GetAllAsync_WhenFieldNameIsNull_ReturnsSortedById()
+    [Theory]
+    [InlineData("location", "asc", new[] {3, 1, 2})]
+    [InlineData("location", "desc", new[] {2, 1, 3})]
+    [InlineData(null, null, new[] {1, 2, 3})]
+    public async Task GetAllAsync_WhenSortingByLocation_ReturnsExpectedOrder(
+        string? fieldName,
+        string? sortByType,
+        int[] expectedOrder
+        )
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
-        var searchDto = new CompanySearchDto{ FieldName = null };
+        var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
         var result = await service.GetAllAsync(searchDto);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(1, result.Items[0].Id);
-        Assert.Equal(2, result.Items[1].Id);
+        var resultOrder = result.Items
+            .Select(item => item.Id)
+            .ToArray();
+
+        Assert.Equal(expectedOrder, resultOrder);
     }
 
     [Fact]
@@ -417,28 +424,6 @@ public class CompanyServiceTests
         Assert.Equal(1, result.Page);
     }
 
-    
-
-    [Fact]
-    public async Task GetAllAsync_WhenSortedByNameDesc_ReturnsCompaniesInDescendingOrder()
-    {
-        // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
-
-        var service = new CompanyService(context);
-        var searchDto =  new CompanySearchDto{ Name = "Micro", FieldName = "Name", SortByType = "desc" };
-
-        // Act
-        var result = await service.GetAllAsync(searchDto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Items.Count);
-        Assert.Equal("Microsoft Colombia", result.Items[0].Name);
-        Assert.Equal("Microsoft", result.Items[1].Name);
-    }
     
     [Fact]
     public async Task GetByIdAsync_WhenCompanyExists_ReturnCompany()

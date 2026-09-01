@@ -315,6 +315,26 @@ public class CompanyServiceTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenFieldNameIsNull_ReturnsSortedById()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        await SeedDatabaseAsync(context);
+
+        var service = new CompanyService(context);
+        var searchDto = new CompanySearchDto{ FieldName = null };
+
+        // Act
+        var result = await service.GetAllAsync(searchDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Items[0].Id);
+        Assert.Equal(2, result.Items[1].Id);
+    }
+
+    [Fact]
     public async Task GetAllAsync_WhenRecordsSetToOne_ReturnsTwoPages()
     {
         // Arrange

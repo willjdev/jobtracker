@@ -449,17 +449,7 @@ public class CompanyServiceTests
     public async Task GetByIdAsync_WhenCompanyExists_ReturnCompany()
     {
         // Arrange
-        using var context = CreateContext();
-
-        context.Add(new Company
-        {
-            Id = 1,
-            Name = "Microsoft",
-            Description = "Big Company",
-            Website = "www.microsoft.com",
-            Location = "Holand",
-        });
-        await context.SaveChangesAsync();
+        using var context = await CreateSeededContextAsync();
 
         var service =  new CompanyService(context);
 

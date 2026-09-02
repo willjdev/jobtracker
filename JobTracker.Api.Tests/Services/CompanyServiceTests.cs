@@ -480,7 +480,7 @@ public class CompanyServiceTests
     public async Task CreateAsync_WhenCompanyCreateDtoIsValid_ReturnsCompanyResponseDto()
     {
         // Arrange
-        using var context = CreateContext();
+        using var context = await CreateSeededContextAsync();
     
         var service = new CompanyService(context);
         var createDto = new CompanyCreateDto
@@ -502,6 +502,7 @@ public class CompanyServiceTests
 
         var companyInDb = await context.Companies.FindAsync(result.Id);
         Assert.NotNull(companyInDb);
+        Assert.Equal(createDto.Name, companyInDb.Name);
     }
 
     [Fact]

@@ -414,8 +414,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenRecordsIsOutsideAllowedRange_ClampsRecordsToValidLimits(int inputRecords, int expectedRecords)
     {
         // Arrange
-        using var context = CreateContext();
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
         
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Records = inputRecords };

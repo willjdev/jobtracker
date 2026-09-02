@@ -343,7 +343,7 @@ public class CompanyServiceTests
 
     [Theory]
     [InlineData("createdat", "asc", new[] {1, 2, 3})]
-    [InlineData("createdat", "desc", new[] {1, 2, 3})]
+    [InlineData("createdat", "desc", new[] {3, 2, 1})]
     [InlineData(null, null, new[] {1, 2, 3})]
     public async Task GetAllAsync_WhenSortingByCreatedAt_ReturnsExpectedOrder(
         string? fieldName,

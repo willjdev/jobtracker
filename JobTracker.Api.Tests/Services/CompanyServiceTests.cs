@@ -554,9 +554,7 @@ public class CompanyServiceTests
     public async Task DeleteAsync_WhenCompanyExists_RemovesCompanyAndReturnsTrue()
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
         var testId = 1;
@@ -574,9 +572,7 @@ public class CompanyServiceTests
     public async Task DeleteAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
         var testId = 99;

@@ -465,7 +465,7 @@ public class CompanyServiceTests
     public async Task GetByIdAsync_WhenCompanyDoesNotExist_ReturnsNull()
     {
         // Arrange
-        using var context = CreateContext();
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
 

@@ -372,9 +372,7 @@ public class CompanyServiceTests
     public async Task GetAllAsync_WhenRecordsSetToOne_ReturnsTwoPages()
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Name = "Micro", Records = 1 };

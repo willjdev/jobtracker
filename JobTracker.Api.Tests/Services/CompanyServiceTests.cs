@@ -428,12 +428,10 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenPageIsLessThanOne_ReturnsPageIsOne()
+    public async Task GetAllAsync_WhenPageIsLessThanOne_ClampsToOne()
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Page = -5 };

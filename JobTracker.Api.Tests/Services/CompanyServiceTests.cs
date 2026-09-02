@@ -389,12 +389,10 @@ public class CompanyServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenPagesetToTwo_ReturnsPageTwoResults()
+    public async Task GetAllAsync_WhenPageIsTwo_ReturnsPageTwoResults()
     {
         // Arrange
-        using var context = CreateContext();
-
-        await SeedDatabaseAsync(context);
+        using var context = await CreateSeededContextAsync();
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Records = 1, Page = 2 };

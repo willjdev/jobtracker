@@ -99,4 +99,21 @@ public class ApplicationNoteServiceTests
         await SeedDatabaseAsync(context);
         return context;
     }
+
+    [Fact]
+    public async Task GetAllAsync_WhenApplicationNotesExists_ReturnsApplicationNoteResponseDtoList()
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new ApplicationNoteService(context);    
+
+        // Act
+        var result = await service.GetAllAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.All(result, Assert.NotNull);
+        Assert.All(result, item => Assert.True(item.Id > 0));
+    }
 }

@@ -116,4 +116,19 @@ public class ApplicationNoteServiceTests
         Assert.All(result, Assert.NotNull);
         Assert.All(result, item => Assert.True(item.Id > 0));
     }
+
+    [Fact]
+    public async Task GetAllAsync_WhenApplicationNotesDoesNotExist_ReturnsEmptyList()
+    {
+        // Arrange
+        using var context = CreateContext();
+
+        var service = new ApplicationNoteService(context);
+        
+        // Act
+        var result = await service.GetAllAsync();
+
+        // Assert
+        Assert.Empty(result);
+    }
 }

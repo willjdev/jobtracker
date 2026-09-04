@@ -177,4 +177,24 @@ public class ApplicationNoteServiceTests
         Assert.NotNull(createdNote);
         Assert.Equal(noteDto.JobApplicationId, createdNote.JobApplicationId);
     }
+
+    [Fact]
+    public async Task CreateAsync_WhenJobApplicationDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new ApplicationNoteService(context);
+        var noteDto = new ApplicationNoteCreateDto
+        {
+            Content = "Pretty well located job",
+            JobApplicationId = 99
+        };
+
+        // Act
+        var result = await service.CreateAsync(noteDto);
+
+        // Assert
+        Assert.Null(result);
+    }
 }

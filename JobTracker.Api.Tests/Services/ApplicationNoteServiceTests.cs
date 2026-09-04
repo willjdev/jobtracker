@@ -226,5 +226,30 @@ public class ApplicationNoteServiceTests
         }
     }
 
-    
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(99, false)]
+    public async Task DeleteAsync_WhenDeletingApplicationNote_ReturnsExpectedResult(
+        int inputNoteId,
+        bool expectedResult
+        )
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new ApplicationNoteService(context);
+        var noteId = inputNoteId;
+        
+        // Act
+        var result = await service.DeleteAsync(noteId);
+
+        // Assert
+        Assert.Equal(expectedResult, result);
+
+        if (expectedResult)
+        {
+            var noteInDb = await context.Notes.FirstOrDefaultAsync(n => n.Id == noteId);
+            Assert.Null(noteInDb);
+        }
+    }
 }

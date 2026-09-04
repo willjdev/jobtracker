@@ -197,4 +197,26 @@ public class ApplicationNoteServiceTests
         // Assert
         Assert.Null(result);
     }
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(99, false)]
+    public async Task UpdateAsync_WhenUpdatingApplicationNote_ReturnsExpectedResult(
+        int inputNoteId,
+        bool expectedResult
+        )
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new ApplicationNoteService(context);
+        var noteId = inputNoteId;
+        var noteDto = new ApplicationNoteUpdateDto { Content = "Searched this company and it is good" };
+
+        // Act
+        var result = await service.UpdateAsync(noteId, noteDto);
+
+        // Assert
+        Assert.Equal(expectedResult, result);
+    }
 }

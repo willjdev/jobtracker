@@ -131,4 +131,25 @@ public class ApplicationNoteServiceTests
         // Assert
         Assert.Empty(result);
     }
+
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(99, null)]
+    public async Task GetByIdAsync_WhenFilteringById_ReturnsExpectedResponse(
+        int id,
+        int? expectedId
+        )
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new ApplicationNoteService(context);
+        var noteId = id;
+
+        // Act
+        var result = await service.GetByIdAsync(noteId);
+
+        // Assert
+        Assert.Equal(expectedId, result?.Id);
+    }
 }

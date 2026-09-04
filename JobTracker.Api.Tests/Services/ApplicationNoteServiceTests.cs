@@ -152,4 +152,29 @@ public class ApplicationNoteServiceTests
         // Assert
         Assert.Equal(expectedId, result?.Id);
     }
+
+    [Fact]
+    public async Task CreateAsync_WhenJobApplicationExists_ReturnsCreatedNote()
+    {
+        // Arrange
+        using var context = await CreateSeededContextAsync();
+
+        var service = new ApplicationNoteService(context);
+        var noteDto = new ApplicationNoteCreateDto
+        { 
+            Content = "This is a good company. This is a good job",
+            JobApplicationId = 1 
+        };
+
+        // Act
+        var result = await service.CreateAsync(noteDto);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(noteDto.Content, result.Content);
+
+        var createdNote = await context.Notes.FirstOrDefaultAsync(n => n.Content == noteDto.Content);
+        Assert.NotNull(createdNote);
+        Assert.Equal(noteDto.JobApplicationId, createdNote.JobApplicationId);
+    }
 }

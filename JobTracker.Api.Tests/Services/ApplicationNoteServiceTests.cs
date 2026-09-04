@@ -218,5 +218,13 @@ public class ApplicationNoteServiceTests
 
         // Assert
         Assert.Equal(expectedResult, result);
+
+        if (expectedResult)
+        {
+            var noteInDb = await context.Notes.FindAsync(noteId);
+            Assert.Equal(noteDto.Content, noteInDb?.Content);
+        }
     }
+
+    
 }

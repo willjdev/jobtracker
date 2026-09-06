@@ -6,7 +6,7 @@ using JobTracker.Api.Dtos.ApplicationNoteDto;
 
 namespace JobTracker.Api.Tests.Services;
 
-public class ApplicationNoteServiceTests
+public class ApplicationNoteServiceTests : ServiceTestBase
 {
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
@@ -113,15 +113,6 @@ public class ApplicationNoteServiceTests
         context.Applications.AddRange(jobApplications);
         context.Notes.AddRange(notes);
         await context.SaveChangesAsync();
-    }
-
-    private ApiDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        return new ApiDbContext(options);
     }
 
     private async Task<ApiDbContext> CreateSeededContextAsync()

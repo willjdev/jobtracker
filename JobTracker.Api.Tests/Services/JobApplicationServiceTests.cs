@@ -6,7 +6,7 @@ using JobTracker.Api.Dtos.JobApplicationDto;
 
 namespace JobTracker.Api.Tests.Services;
 
-public class JobApplicationServiceTests
+public class JobApplicationServiceTests : ServiceTestBase
 {
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
@@ -149,14 +149,6 @@ public class JobApplicationServiceTests
         await context.Companies.AddRangeAsync(companies);
         await context.Applications.AddRangeAsync(jobApplications);
         await context.SaveChangesAsync();
-    }
-    private ApiDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        return new ApiDbContext(options);
     }
 
     [Fact]

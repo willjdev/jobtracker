@@ -283,7 +283,9 @@ public class ApplicationNoteServiceTests
         var noteId = inputNoteId;
         
         // Act
+        var notesCountBefore = await context.Notes.CountAsync();
         var result = await service.DeleteAsync(noteId);
+        var notesCountAfter = await context.Notes.CountAsync();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -292,6 +294,11 @@ public class ApplicationNoteServiceTests
         {
             var noteInDb = await context.Notes.FirstOrDefaultAsync(n => n.Id == noteId);
             Assert.Null(noteInDb);
+            Assert.NotEqual(notesCountBefore, notesCountAfter);
+        }
+        else
+        {
+            Assert.Equal(notesCountBefore, notesCountAfter);
         }
     }
 }

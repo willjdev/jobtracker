@@ -169,7 +169,7 @@ public class ApplicationNoteServiceTests
     [Theory]
     [InlineData(1, 1)]
     [InlineData(99, null)]
-    public async Task GetByIdAsync_WhenFilteringById_ReturnsExpectedResponse(
+    public async Task GetByIdAsync_GivenId_ReturnsExpectedResponse(
         int id,
         int? expectedId
         )
@@ -184,7 +184,15 @@ public class ApplicationNoteServiceTests
         var result = await service.GetByIdAsync(noteId);
 
         // Assert
-        Assert.Equal(expectedId, result?.Id);
+        if (expectedId is not null)
+        {
+            Assert.NotNull(result);
+            Assert.Equal(expectedId, result.Id);
+        }
+        else
+        {
+            Assert.Null(result);
+        }
     }
 
     [Fact]

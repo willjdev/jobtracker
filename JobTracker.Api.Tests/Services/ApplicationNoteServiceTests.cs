@@ -4,12 +4,43 @@ using JobTracker.Api.Data;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 
-namespace JobTracker.Api.Services;
+namespace JobTracker.Api.Tests.Services;
 
 public class ApplicationNoteServiceTests
 {
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
+        var companies = new List<Company>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Microsoft",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Holand",
+                CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Santa Monica",
+                Description = "Game Company",
+                Website = "www.santamonica.com",
+                Location = "Remote",
+                CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0),
+            },
+            new()
+            {
+                Id = 4,
+                Name = "Microsoft Netherlands",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Netherlands",
+                CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
+            }
+        };
+        
         var jobApplications = new List<JobApplication>
         {
             new()

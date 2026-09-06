@@ -40,7 +40,7 @@ public class ApplicationNoteServiceTests
                 CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
             }
         };
-        
+
         var jobApplications = new List<JobApplication>
         {
             new()
@@ -146,6 +146,9 @@ public class ApplicationNoteServiceTests
         Assert.NotNull(result);
         Assert.All(result, Assert.NotNull);
         Assert.All(result, item => Assert.True(item.Id > 0));
+
+        var resultOrder = result.Select(item => item.Id).ToArray();
+        Assert.Equal(new[] {4, 3, 2, 1}, resultOrder);
     }
 
     [Fact]

@@ -117,7 +117,12 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
     private async Task<ApiDbContext> CreateSeededContextAsync()
     {
-        var context = CreateContext();
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        var context = new ApiDbContext(options);
+
         await SeedDatabaseAsync(context);
         return context;
     }
@@ -146,7 +151,12 @@ public class ApplicationNoteServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenApplicationNotesDoesNotExist_ReturnsEmptyList()
     {
         // Arrange
-        using var context = CreateContext();
+        /* using var context = CreateContext(); */
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
 
         var service = new ApplicationNoteService(context);
         

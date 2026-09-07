@@ -1,14 +1,35 @@
 using JobTracker.Api.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 public abstract class ServiceTestBase
 {
-    protected ApiDbContext CreateContext()
+    protected async Task<ApiDbContext> CreateContextAsync(SqliteConnection connection)
     {
         var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseSqlite(connection)
             .Options;
         
-        return new ApiDbContext(options);
+        var context = new ApiDbContext(options);
+
+        await context.Database.EnsureCreatedAsync();
+
+        return context;
+    }
+
+    protected async Task<SqliteConnection> CreateOpenConnectionAsync()
+    {
+        var connection = new SqliteConnection("Datasource=:memory:");
+        await connection.OpenAsync();
+
+        return connection;
+    }
+
+    protected async Task<SqliteTestContext> CreateSqliteTestContextAsync()
+    {
+        var connection = await CreateOpenConnectionAsync();
+        var context = await CreateContextAsync(connection);
+
+        return new SqliteTestContext(connection, context);
     }
 }

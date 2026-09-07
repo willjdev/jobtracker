@@ -1,4 +1,4 @@
-using Xunit;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Services;
 using JobTracker.Api.Data;
@@ -100,18 +100,16 @@ public class CompanyServiceTests : ServiceTestBase
         await context.Companies.AddRangeAsync(companies);
         await context.SaveChangesAsync();
     }
-    private async Task<ApiDbContext> CreateSeededContextAsync()
-    {
-        var context = CreateContext();
-        await SeedDatabaseAsync(context);
-        return context;
-    }
 
     [Fact]
     public async Task GetAllAsync_WhenCompaniesExist_ReturnPagedResponse()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
         
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{};
@@ -132,7 +130,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenDbIsEmpty_ReturnsEmptyPagedResponse()
     {
         // Arrange
-        using var context = CreateContext();
+        var options = new DbContextOptionsBuilder<ApiDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        using var context = new ApiDbContext(options);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{};

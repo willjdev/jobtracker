@@ -130,12 +130,10 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenDbIsEmpty_ReturnsEmptyPagedResponse()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        await using var testContext = await CreateSqliteTestContextAsync();
 
+        var context = testContext.Context;
+        
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{};
 
@@ -157,7 +155,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Name= name };
@@ -192,7 +194,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Location = location };
@@ -226,7 +232,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ CreatedAt = date };
@@ -259,7 +269,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ JobApplicationPosition = jobApplicationPosition };
@@ -292,7 +306,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
@@ -319,7 +337,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
@@ -346,7 +368,11 @@ public class CompanyServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
@@ -366,7 +392,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenRecordsSetToOne_ReturnsTwoPages()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Name = "Micro", Records = 1 };
@@ -386,7 +416,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenPageIsTwo_ReturnsPageTwoResults()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Records = 1, Page = 2 };
@@ -408,8 +442,12 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenRecordsIsOutsideAllowedRange_ClampsRecordsToValidLimits(int inputRecords, int expectedRecords)
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
-        
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Records = inputRecords };
 
@@ -425,7 +463,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenPageIsLessThanOne_ClampsToOne()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var searchDto = new CompanySearchDto{ Page = -5 };
@@ -443,7 +485,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetByIdAsync_WhenCompanyExists_ReturnCompany()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service =  new CompanyService(context);
 
@@ -459,7 +505,9 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task GetByIdAsync_WhenCompanyDoesNotExist_ReturnsNull()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
 
         var service = new CompanyService(context);
 
@@ -474,8 +522,12 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task CreateAsync_WhenCompanyCreateDtoIsValid_ReturnsCompanyResponseDto()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
-    
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
         var service = new CompanyService(context);
         var createDto = new CompanyCreateDto
         {
@@ -503,7 +555,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task UpdateAsync_WhenUpdateSuccess_ReturnsTrue()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var testId = 1;
@@ -527,7 +583,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task UpdateAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var testId = 99;
@@ -548,7 +608,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task DeleteAsync_WhenCompanyExists_RemovesCompanyAndReturnsTrue()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var testId = 1;
@@ -566,7 +630,11 @@ public class CompanyServiceTests : ServiceTestBase
     public async Task DeleteAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new CompanyService(context);
         var testId = 99;

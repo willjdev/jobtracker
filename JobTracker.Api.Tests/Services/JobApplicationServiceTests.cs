@@ -151,19 +151,14 @@ public class JobApplicationServiceTests : ServiceTestBase
         await context.SaveChangesAsync();
     }
 
-    private ApiDbContext CreateContext1()
-    {
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        return new ApiDbContext(options);
-    }
     [Fact]
     public async Task GetAllAsync_WhenJobApplicationExist_ReturnsPagedResponse()
     {
         // Arrange 
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -183,7 +178,9 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenDbIsEmpty_ReturnsEmptyPagedResponse()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
 
         var service = new JobApplicationService(context);
         var searchDto = new JobApplicationSearchDto{};
@@ -208,7 +205,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         string? company)
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -247,7 +247,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         int? expectedCompanyId)
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -284,7 +287,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         int? expectedFirstItemCompanyId)
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service =  new JobApplicationService(context);
@@ -325,7 +331,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         int expectedTotalRecords)
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -363,7 +372,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -390,7 +402,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -417,7 +432,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -444,7 +462,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -471,7 +492,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -488,7 +512,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenPageIsLessThanOne_ClampsToOne()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -505,7 +532,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenPageIsTwo_ReturnPageTwoItems()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -531,7 +561,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -555,7 +588,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task GetByIdAsync_WhenJobApplicationHasNotes_ReturnsItemWithNotes()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -579,7 +615,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task CreateAsync_WhenCompanyExists_ReturnsCreatedJobApplicationResponseDto()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -608,7 +647,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task CreateAsync_WhenCompanyDoesNotExists_ReturnsNull()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -630,7 +672,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task UpdateAsync_WhenJobApplicationExists_UpdatesAndReturnsTrue()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -651,7 +696,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task UpdateAsync_WhenJobApplicationDoesNotExists_ReturnsFalse()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -669,7 +717,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task DeleteAsync_WhenJobApplicationExists_DeletesAndReturnsTrue()
     {
         // Arrange 
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);
@@ -688,7 +739,10 @@ public class JobApplicationServiceTests : ServiceTestBase
     public async Task DeleteAsync_WhenJobApplicationDoesNotExists_ReturnsFalse()
     {
         // Arrange
-        using var context = CreateContext1();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
         await SeedDatabaseAsync(context);
 
         var service = new JobApplicationService(context);

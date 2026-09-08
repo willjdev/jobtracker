@@ -110,28 +110,21 @@ public class ApplicationNoteServiceTests : ServiceTestBase
             }
         };
     
+        context.Companies.AddRange(companies);
         context.Applications.AddRange(jobApplications);
         context.Notes.AddRange(notes);
         await context.SaveChangesAsync();
-    }
-
-    private async Task<ApiDbContext> CreateSeededContextAsync()
-    {
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        var context = new ApiDbContext(options);
-
-        await SeedDatabaseAsync(context);
-        return context;
     }
 
     [Fact]
     public async Task GetAllAsync_WhenApplicationNotesExists_ReturnsApplicationNoteResponseDtoList()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new ApplicationNoteService(context);    
 
@@ -151,12 +144,9 @@ public class ApplicationNoteServiceTests : ServiceTestBase
     public async Task GetAllAsync_WhenApplicationNotesDoesNotExist_ReturnsEmptyList()
     {
         // Arrange
-        /* using var context = CreateContext(); */
-        var options = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        
-        using var context = new ApiDbContext(options);
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
 
         var service = new ApplicationNoteService(context);
         
@@ -176,7 +166,11 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new ApplicationNoteService(context);
         var noteId = id;
@@ -200,7 +194,11 @@ public class ApplicationNoteServiceTests : ServiceTestBase
     public async Task CreateAsync_WhenJobApplicationExists_ReturnsCreatedNote()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new ApplicationNoteService(context);
         var noteDto = new ApplicationNoteCreateDto
@@ -225,7 +223,11 @@ public class ApplicationNoteServiceTests : ServiceTestBase
     public async Task CreateAsync_WhenJobApplicationDoesNotExist_ReturnsNull()
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new ApplicationNoteService(context);
         var noteDto = new ApplicationNoteCreateDto
@@ -250,7 +252,11 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new ApplicationNoteService(context);
         var noteId = inputNoteId;
@@ -278,7 +284,11 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         )
     {
         // Arrange
-        using var context = await CreateSeededContextAsync();
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
 
         var service = new ApplicationNoteService(context);
         var noteId = inputNoteId;

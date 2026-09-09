@@ -1,6 +1,8 @@
 using JobTracker.Api.Data;
 using Microsoft.Data.Sqlite;
 
+namespace JobTracker.Api.Tests.Helpers;
+
 public sealed class SqliteTestContext : IAsyncDisposable
 {
     public SqliteConnection Connection { get; }

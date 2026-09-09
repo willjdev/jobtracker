@@ -2,6 +2,8 @@ using JobTracker.Api.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
+namespace JobTracker.Api.Tests.Helpers;
+
 public abstract class ServiceTestBase
 {
     protected async Task<ApiDbContext> CreateContextAsync(SqliteConnection connection)

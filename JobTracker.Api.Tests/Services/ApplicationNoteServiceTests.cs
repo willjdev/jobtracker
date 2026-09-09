@@ -3,6 +3,7 @@ using JobTracker.Api.Services;
 using JobTracker.Api.Data;
 using JobTracker.Api.Models;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
+using JobTracker.Api.Tests.Helpers;
 
 namespace JobTracker.Api.Tests.Services;
 

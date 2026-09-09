@@ -1,5 +1,4 @@
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
+using JobTracker.Api.Tests.Helpers;
 using JobTracker.Api.Services;
 using JobTracker.Api.Data;
 using JobTracker.Api.Models;

@@ -10,4 +10,6 @@ public class ApplicationUser : IdentityUser
     [Required(ErrorMessage = "Lastname is required")]
     [MinLength(1)]
     public string Lastname { get; set; }
+
+    public DateTime CreateAt { get; set; } = DateTime.UtcNow;
 }

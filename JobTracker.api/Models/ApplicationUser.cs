@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
+namespace JobTracker.Api.Models;
 public class ApplicationUser : IdentityUser
 {
     [Required(ErrorMessage = "Name is required")]

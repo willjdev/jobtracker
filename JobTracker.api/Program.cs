@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Data;
 using JobTracker.Api.Services.Interfaces;
 using JobTracker.Api.Services;
+using JobTracker.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+    .AddEntityFrameworkStores<ApiDbContext>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,8 +32,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapIdentityApi<ApplicationUser>();
 app.MapControllers();
 
 app.Run();

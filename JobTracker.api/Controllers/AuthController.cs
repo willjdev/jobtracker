@@ -37,4 +37,25 @@ public class AuthController : ControllerBase
             return StatusCode(500, new { message = "An error ocurred while registeirng user." });
         }
     }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<AuthResponseDto>> Login(LoginDto userData)
+    {
+        try
+        {
+            var response = await _services.LoginAsync(userData);
+
+            if (!response.Success)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error logging in user");
+            return StatusCode(500, new { message = "An error ocurred while loggin in." });
+        }
+    }
 }

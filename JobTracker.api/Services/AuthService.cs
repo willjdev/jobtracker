@@ -94,4 +94,32 @@ public class AuthService : IAuthService
         return await CreateAuthResponseAsync(user, "User registered succesfully");
 
     }
+
+    public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
+    {
+        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+        if (user is null)
+        {
+            return new AuthResponseDto
+            {
+                Success = false,
+                Message = "Invalid Email or Password."
+            };
+        }
+
+        var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+
+        if (!isPasswordValid)
+        {
+            return new AuthResponseDto
+            {
+                Success = false,
+                Message = "Invalid Email or Password."
+            };
+        }
+
+        return await CreateAuthResponseAsync(user, "Login succesful");
+    }
+
 }

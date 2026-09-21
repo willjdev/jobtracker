@@ -22,6 +22,43 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
+    private Task<AuthResponseDto> CreateAuthResponseAsync(ApplicationUser user, string message)
+    {
+        var expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationMinutes"]));
+        
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.Name, user.UserName!)
+        };
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+        
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:audience"],
+            claims: claims,
+            expires: expiration,
+            signingCredentials: credentials
+        );
+
+        var tokenText = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return Task.FromResult(new AuthResponseDto
+        {
+            Success = true,
+            Message = message,
+            Token = tokenText,
+            Expiration = expiration,
+            UserId = user.Id,
+            Email = user.Email
+        });
+    }
+
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
     {
         var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
@@ -54,38 +91,7 @@ public class AuthService : IAuthService
             };
         }
 
-        var expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationMinutes"]));
-        
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id),
-            new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.Name, user.UserName!)
-        };
+        return await CreateAuthResponseAsync(user, "User registered succesfully");
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-        
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:audience"],
-            claims: claims,
-            expires: expiration,
-            signingCredentials: credentials
-        );
-
-        var tokenText = new JwtSecurityTokenHandler().WriteToken(token);
-
-        return new AuthResponseDto
-        {
-            Success = true,
-            Message = "User registered succesfully.",
-            Token = tokenText,
-            Expiration = expiration,
-            UserId = user.Id,
-            Email = user.Email
-        };
     }
 }

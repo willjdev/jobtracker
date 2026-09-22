@@ -115,3 +115,36 @@ Content-Type: application/json
 ###
 
 DELETE {{Host}}/api/application-notes/7
+
+###
+
+
+
+
+
+
+
+
+
+
+// **** Auth **** //
+
+POST {{Host}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "William",
+    "lastname": "Jaimes Fontalvo",
+    "email": "william@email.com",
+    "password": "test123"
+}
+
+###
+
+POST {{Host}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "william@email.com",
+    "password": "test123"
+}

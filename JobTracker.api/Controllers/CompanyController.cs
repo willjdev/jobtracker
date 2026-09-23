@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using JobTracker.Api.Dtos.CompanyDto;
 using JobTracker.Api.Dtos.Common;
 using JobTracker.Api.Services.Interfaces;
 
 namespace JobTracker.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/companies")]
 public class CompaniesController : ControllerBase

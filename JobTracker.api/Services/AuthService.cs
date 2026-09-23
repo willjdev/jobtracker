@@ -24,7 +24,7 @@ public class AuthService : IAuthService
 
     private Task<AuthResponseDto> CreateAuthResponseAsync(ApplicationUser user, string message)
     {
-        var expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationMinutes"]));
+        var expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireInMinutes"]));
         
         var claims = new List<Claim>
         {

@@ -1,7 +1,9 @@
 @Host=http://localhost:5400
+@Token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjI5MjAwOTRhLTBiNGItNGZmYS1iYWE1LWI1MWU0ZTE4NTM2YyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6IndpbGxpYW1AZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IndpbGxpYW1AZW1haWwuY29tIiwiZXhwIjoxNzkwMTYzMzg3LCJpc3MiOiJKb2J0cmFja2VyLkFwaSIsImF1ZCI6IkpvYnRyYWNrZXJDbGllbnQifQ.oV7ETh-MPa6dn-I1Q7bluUSWsZwY8z2GpHkR-lF8Q6c
 
 GET {{Host}}/api/companies
 Accept: application/json
+Authorization: Bearer {{Token}}
 
 ###
 
@@ -45,6 +47,7 @@ GET {{Host}}/api/companies?fieldname=name&records=20&page=1
 
 GET {{Host}}/api/applications
 Accept: application/json
+Authorization: Bearer {{Token}}
 
 ###
 
@@ -87,6 +90,7 @@ Accept: application/json
 
 GET {{Host}}/api/application-notes
 Accept: application/json
+Authorization: Bearer {{Token}}
 
 ###
 

@@ -12,5 +12,7 @@ public class Company
     public string? Location { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public List<JobApplication> JobApplications { get; set; } = new();
+    public string UserId { get; set; } = string.Empty;
+    public ApplicationUser? User { get; set; }
 
 }

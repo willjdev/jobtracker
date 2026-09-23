@@ -7,4 +7,6 @@ public class ApplicationNote
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public int JobApplicationId { get; set; }
     public JobApplication? JobApplication { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public ApplicationUser? User { get; set; }
 }

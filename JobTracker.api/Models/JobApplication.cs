@@ -10,5 +10,7 @@ public class JobApplication
     public int CompanyId { get; set; }
     public Company? Company { get; set; }
     public List<ApplicationNote>? ApplicationNotes { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public ApplicationUser? User { get; set; }
 
 }

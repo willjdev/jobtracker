@@ -9,8 +9,28 @@ namespace JobTracker.Api.Tests.Services;
 
 public class JobApplicationServiceTests : ServiceTestBase
 {
+    private async Task<ApplicationUser> SeedUserAsync(ApiDbContext context)
+    {
+        var user = new ApplicationUser
+        {
+            Id = "test-user-id",
+            Name = "Test",
+            Lastname = "User",
+            UserName = "test@email.com",
+            NormalizedUserName = "TEST@EMAIL.COM",
+            Email = "test@email.com",
+            NormalizedEmail = "TEST@EMAIL.COM"
+        };
+
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        return user;
+    }
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
+        var user = await SeedUserAsync(context);
+
         var companies = new List<Company>
         {
             new()
@@ -20,6 +40,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Holand",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
             },
             new()
@@ -29,6 +50,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                 Description = "Game Company",
                 Website = "www.santamonica.com",
                 Location = "Remote",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0),
             },
             new()
@@ -38,6 +60,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Netherlands",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
             }
         };
@@ -50,6 +73,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                 JobUrl = "https://www.job.com",
                 AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
                 CompanyId = 1,
+                UserId = user.Id,
                 ApplicationNotes = new List<ApplicationNote>
                 {
                     new()
@@ -57,14 +81,16 @@ public class JobApplicationServiceTests : ServiceTestBase
                         Id = 1,
                         Content = "Waiting response",
                         CreatedAt = new DateTime(2026, 8, 17, 6, 30, 0),
-                        JobApplicationId = 1
+                        JobApplicationId = 1,
+                        UserId = user.Id
                     },
                     new()
                     {
                         Id = 2,
                         Content = "Resume sent",
                         CreatedAt = new DateTime(2026, 8, 18, 7, 30, 0),
-                        JobApplicationId = 1
+                        JobApplicationId = 1,
+                        UserId = user.Id
                     }
                 }
             },
@@ -75,6 +101,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                AppliedAt = new DateTime(2026, 8, 18, 0, 0, 0),
                JobUrl = "https//www.job.com",
                CompanyId = 2,
+               UserId = user.Id,
                ApplicationNotes = new List<ApplicationNote>
                {
                    new()
@@ -82,14 +109,16 @@ public class JobApplicationServiceTests : ServiceTestBase
                         Id = 3,
                         Content = "Sent application, waiting for response",
                         CreatedAt = new DateTime(2026, 8, 18, 8, 20, 0),
-                        JobApplicationId = 2
+                        JobApplicationId = 2,
+                        UserId = user.Id
                    },
                    new()
                    {
                        Id = 4,
                        Content = "Received email!!",
                        CreatedAt = new DateTime(2026, 8, 19, 8, 24, 0),
-                       JobApplicationId = 2
+                       JobApplicationId = 2,
+                       UserId = user.Id
                    }
                }
             },
@@ -101,6 +130,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 1,
+                UserId = user.Id,
                 ApplicationNotes = new List<ApplicationNote>
                 {
                     new()
@@ -108,14 +138,16 @@ public class JobApplicationServiceTests : ServiceTestBase
                         Id = 5,
                         Content = "Sent an email to recruiter",
                         CreatedAt = new DateTime(2026, 8, 20, 9, 0, 0),
-                        JobApplicationId = 3
+                        JobApplicationId = 3,
+                        UserId = user.Id
                     },
                     new()
                     {
                         Id = 6,
                         Content = "Recruiter wants to interview me!",
                         CreatedAt = new DateTime(2026, 8, 22, 10, 0, 0),
-                        JobApplicationId = 3
+                        JobApplicationId = 3,
+                        UserId = user.Id
                     }
                 }
             },
@@ -127,6 +159,7 @@ public class JobApplicationServiceTests : ServiceTestBase
                 AppliedAt = new DateTime(2026, 8, 10, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 4,
+                UserId = user.Id,
                 ApplicationNotes = new List<ApplicationNote>
                 {
                     new()
@@ -134,14 +167,16 @@ public class JobApplicationServiceTests : ServiceTestBase
                         Id = 7,
                         Content = "Sent an email to recruiter",
                         CreatedAt = new DateTime(2026, 8, 10, 9, 0, 0),
-                        JobApplicationId = 4
+                        JobApplicationId = 4,
+                        UserId = user.Id
                     },
                     new()
                     {
                         Id = 8,
                         Content = "Meeting tomorrow!!",
                         CreatedAt = new DateTime(2026, 8, 14, 10, 0, 0),
-                        JobApplicationId = 4
+                        JobApplicationId = 4,
+                        UserId = user.Id
                     }
                 }
             }

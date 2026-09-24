@@ -9,8 +9,28 @@ namespace JobTracker.Api.Tests.Services;
 
 public class ApplicationNoteServiceTests : ServiceTestBase
 {
+    private async Task<ApplicationUser> SeedUserAsync(ApiDbContext context)
+    {
+        var user = new ApplicationUser
+        {
+            Id = "test-user-id",
+            Name = "Test",
+            Lastname = "User",
+            UserName = "test@email.com",
+            NormalizedUserName = "TEST@EMAIL.COM",
+            Email = "test@email.com",
+            NormalizedEmail = "TEST@EMAIL.COM"
+        };
+
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        return user;
+    }
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
+        var user = await SeedUserAsync(context);
+
         var companies = new List<Company>
         {
             new()
@@ -20,6 +40,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Holand",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
             },
             new()
@@ -29,6 +50,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Description = "Game Company",
                 Website = "www.santamonica.com",
                 Location = "Remote",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0),
             },
             new()
@@ -38,6 +60,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Netherlands",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
             }
         };
@@ -50,6 +73,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Position = "Fullstack Developer",
                 JobUrl = "https://www.job.com",
                 AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
+                UserId = user.Id,
                 CompanyId = 1,
             },
             new()
@@ -58,6 +82,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Position = "Game Developer",
                 AppliedAt = new DateTime(2026, 8, 18, 0, 0, 0),
                 JobUrl = "https//www.job.com",
+                UserId = user.Id,
                 CompanyId = 2
             },
             new()
@@ -67,6 +92,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Status = "Meeting",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
                 JobUrl = "https//www.job.com",
+                UserId = user.Id,
                 CompanyId = 1
             },
             new()
@@ -76,6 +102,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Status = "Interview",
                 AppliedAt = new DateTime(2026, 8, 10, 6, 40, 0),
                 JobUrl = "https//www.job.com",
+                UserId = user.Id,
                 CompanyId = 4
             }
         };
@@ -86,6 +113,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Id = 1,
                 Content = "I like this company",
                 CreatedAt = new DateTime(2026, 7, 10, 6, 20, 0),
+                UserId = user.Id,
                 JobApplicationId = 1
             },
             new()
@@ -93,6 +121,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Id = 2,
                 Content = "Sent the email, let's wait for response",
                 CreatedAt = new DateTime(2026, 8, 2, 10, 40, 0),
+                UserId = user.Id,
                 JobApplicationId = 2
             },
             new()
@@ -100,6 +129,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Id = 3,
                 Content = "Game company, sent resume",
                 CreatedAt = new DateTime(2026, 8, 14, 7, 40, 0),
+                UserId = user.Id,
                 JobApplicationId = 3
             },
             new()
@@ -107,6 +137,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Id = 4,
                 Content = "Sent the email to the recruiter",
                 CreatedAt = new DateTime(2026, 8, 18, 9, 20 ,0),
+                UserId = user.Id,
                 JobApplicationId = 4
             }
         };

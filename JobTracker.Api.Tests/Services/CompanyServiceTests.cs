@@ -9,8 +9,27 @@ namespace JobTracker.Api.Tests.Services;
 public class CompanyServiceTests : ServiceTestBase
 {
     // Helper
+    private async Task<ApplicationUser> SeedUserAsync(ApiDbContext context)
+    {
+        var user = new ApplicationUser
+        {
+            Id = "test-user-id",
+            Name = "Test",
+            Lastname = "User",
+            UserName = "test@email.com",
+            NormalizedUserName = "TEST@EMAIL.COM",
+            Email = "test@email.com",
+            NormalizedEmail = "TEST@EMAIL.COM"
+        };
+
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        return user;
+    }
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
+        var user = await SeedUserAsync(context);
         var companies = new List<Company>
         {
             new()
@@ -20,6 +39,7 @@ public class CompanyServiceTests : ServiceTestBase
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Holand",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
                 JobApplications = new List<JobApplication>
                 {
@@ -28,14 +48,16 @@ public class CompanyServiceTests : ServiceTestBase
                         Id = 1,
                         Position = ".NET Developer",
                         JobUrl = "www.job.com",
-                        CompanyId = 1
+                        CompanyId = 1,
+                        UserId = user.Id
                     },
                     new()
                     {
                         Id = 2,
                         Position = "Senior .NET Developer",
                         JobUrl = "www.job.com",
-                        CompanyId = 1
+                        CompanyId = 1,
+                        UserId = user.Id
                     }
 
                 }
@@ -47,6 +69,7 @@ public class CompanyServiceTests : ServiceTestBase
                 Description = "Game Company",
                 Website = "www.santamonica.com",
                 Location = "Remote",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 7, 20, 7, 0, 0),
                 JobApplications = new List<JobApplication>
                 {
@@ -55,14 +78,16 @@ public class CompanyServiceTests : ServiceTestBase
                         Id = 3,
                         Position = "Game Developer",
                         JobUrl = "www.job.com",
-                        CompanyId = 2
+                        CompanyId = 2,
+                        UserId = user.Id
                     },
                     new()
                     {
                         Id = 4,
                         Position = "Senior Game Developer",
                         JobUrl = "www.job.com",
-                        CompanyId = 2
+                        CompanyId = 2,
+                        UserId = user.Id
                     }
 
                 }
@@ -74,6 +99,7 @@ public class CompanyServiceTests : ServiceTestBase
                 Description = "Big Company",
                 Website = "www.microsoft.com",
                 Location = "Colombia",
+                UserId = user.Id,
                 CreatedAt = new DateTime(2026, 8, 2, 8, 20, 0),
                 JobApplications = new List<JobApplication>
                 {
@@ -82,14 +108,16 @@ public class CompanyServiceTests : ServiceTestBase
                         Id = 5,
                         Position = "Junior .NET Developer",
                         JobUrl = "www.job.com",
-                        CompanyId = 3
+                        CompanyId = 3,
+                        UserId = user.Id
                     },
                     new()
                     {
                         Id = 6,
                         Position = "Senior Azure + .NET Developer",
                         JobUrl = "www.job.com",
-                        CompanyId = 3
+                        CompanyId = 3,
+                        UserId = user.Id
                     }
 
                 }

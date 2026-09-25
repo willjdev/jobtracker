@@ -98,14 +98,15 @@ public class CompanyService : ICompanyService
         };
     }
 
-    public async Task<CompanyResponseDto?> CreateAsync(CompanyCreateDto company)
+    public async Task<CompanyResponseDto?> CreateAsync(CompanyCreateDto company, string userId)
     {
         var newCompany = new Company
         {
             Name = company.Name,
             Description = company.Description,
             Website = company.Website,
-            Location = company.Location
+            Location = company.Location,
+            UserId = userId
         };
 
         await _context.Companies.AddAsync(newCompany);

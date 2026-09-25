@@ -565,7 +565,7 @@ public class CompanyServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(createDto);
+        var result = await service.CreateAsync(createDto, "test-user-id");
 
         // Assert
         Assert.NotNull(result);

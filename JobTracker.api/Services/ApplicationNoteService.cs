@@ -17,20 +17,6 @@ public class ApplicationNoteService : IApplicationNoteService
 
     public async Task<List<ApplicationNoteResponseDto>> GetAllAsync()
     {
-        /* List<ApplicationNoteResponseDto> response = [];
-        List<ApplicationNote> notes = await _context.Notes.ToListAsync();
-
-        foreach (ApplicationNote note in notes)
-        {
-            response.Add(new ApplicationNoteResponseDto
-            {
-                Id = note.Id,
-                Content = note.Content,
-                CreatedAt = note.CreatedAt
-            });
-        }
-
-        return response; */
         return await _context.Notes
             .AsNoTracking()
             .OrderByDescending(n => n.CreatedAt)
@@ -52,7 +38,7 @@ public class ApplicationNoteService : IApplicationNoteService
         return new ApplicationNoteResponseDto{ Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt };
     }
 
-    public async Task<ApplicationNoteResponseDto?> CreateAsync(ApplicationNoteCreateDto note)
+    public async Task<ApplicationNoteResponseDto?> CreateAsync(ApplicationNoteCreateDto note, string userId)
     {
         var job = await _context.Applications.FindAsync(note.JobApplicationId);
         if (job is null)
@@ -62,7 +48,8 @@ public class ApplicationNoteService : IApplicationNoteService
         {
             Content = note.Content,
             JobApplicationId = note.JobApplicationId,
-            JobApplication = job
+            JobApplication = job,
+            UserId = userId
         };
         await _context.Notes.AddAsync(newNote);
         await _context.SaveChangesAsync();

@@ -240,7 +240,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(noteDto);
+        var result = await service.CreateAsync(noteDto, "test-user-id");
 
         // Assert
         Assert.NotNull(result);
@@ -269,7 +269,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(noteDto);
+        var result = await service.CreateAsync(noteDto, "test-user-id");
 
         // Assert
         Assert.Null(result);

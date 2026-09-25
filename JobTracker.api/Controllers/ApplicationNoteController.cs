@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JobTracker.Api.Controllers;
 
@@ -56,7 +57,14 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            var response = await _services.CreateAsync(note);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _services.CreateAsync(note, userId);
             if (response is null)
                 return BadRequest();
             else

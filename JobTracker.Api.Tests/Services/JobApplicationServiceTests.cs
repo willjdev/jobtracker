@@ -666,7 +666,7 @@ public class JobApplicationServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(jobDto);
+        var result = await service.CreateAsync(jobDto, "test-user-id");
 
         // Assert
         Assert.NotNull(result);
@@ -698,7 +698,7 @@ public class JobApplicationServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(jobDto);
+        var result = await service.CreateAsync(jobDto, "test-user-id");
 
         // Assert
         Assert.Null(result);

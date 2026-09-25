@@ -120,7 +120,7 @@ public class JobApplicationService : IJobApplicationService
         };
     }
 
-    public async Task<JobApplicationResponseDto?> CreateAsync(JobApplicationCreateDto job)
+    public async Task<JobApplicationResponseDto?> CreateAsync(JobApplicationCreateDto job, string userId)
     {
         var company = await _context.Companies.FindAsync(job.CompanyId);
         if (company is null)
@@ -131,7 +131,8 @@ public class JobApplicationService : IJobApplicationService
             Position = job.Position,
             JobUrl = job.JobUrl,
             CompanyId = job.CompanyId,
-            Company = company
+            Company = company,
+            UserId = userId
         };
         await _context.Applications.AddAsync(newJob);
         await _context.SaveChangesAsync();

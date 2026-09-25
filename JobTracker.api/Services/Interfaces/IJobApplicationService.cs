@@ -7,7 +7,7 @@ public interface IJobApplicationService
 {
     Task<PagedResponse<JobApplicationResponseDto>> GetAllAsync(JobApplicationSearchDto search);
     Task<JobApplicationResponseDto?> GetByIdAsync(int id);
-    Task<JobApplicationResponseDto?> CreateAsync(JobApplicationCreateDto job);
+    Task<JobApplicationResponseDto?> CreateAsync(JobApplicationCreateDto job, string userId);
     Task<bool> UpdateAsync(int id, JobApplicationUpdateDto job);
     Task<bool> DeleteAsync(int id);
 }

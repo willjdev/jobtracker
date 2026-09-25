@@ -3,6 +3,7 @@ using JobTracker.Api.Dtos.JobApplicationDto;
 using JobTracker.Api.Dtos.Common;
 using JobTracker.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JobTracker.Api.Controllers;
 
@@ -57,7 +58,13 @@ public class JobApplicationsController : ControllerBase
     {
         try
         {
-            var response = await _services.CreateAsync(job);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+            var response = await _services.CreateAsync(job, userId);
             if (response is null)
                 return BadRequest();
             else

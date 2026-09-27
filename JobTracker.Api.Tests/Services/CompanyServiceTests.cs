@@ -6,11 +6,6 @@ using JobTracker.Api.Dtos.CompanyDto;
 
 namespace JobTracker.Api.Tests.Services;
 
-public class FakeCurrentUserService : ICurrentUserService
-{
-    public string? UserId { get; set; }
-}
-
 public class CompanyServiceTests : ServiceTestBase
 {
     // Helper

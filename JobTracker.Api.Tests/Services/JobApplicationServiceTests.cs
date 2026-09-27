@@ -186,6 +186,10 @@ public class JobApplicationServiceTests : ServiceTestBase
         await context.Applications.AddRangeAsync(jobApplications);
         await context.SaveChangesAsync();
     }
+    private FakeCurrentUserService _currentUserService = new FakeCurrentUserService
+    {
+        UserId = "test-user-id"
+    };
 
     [Fact]
     public async Task GetAllAsync_WhenJobApplicationExist_ReturnsPagedResponse()
@@ -197,7 +201,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{};
 
         // Act
@@ -218,7 +222,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         var context = testContext.Context;
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{};
 
         // Act
@@ -247,7 +251,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ CompanyId = companyId };
 
         // Act
@@ -289,7 +293,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ Position = position };
 
         // Act
@@ -329,7 +333,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service =  new JobApplicationService(context);
+        var service =  new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ Status = status };
 
         // Act
@@ -373,7 +377,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ AppliedAt = date };
 
         // Act
@@ -414,7 +418,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -444,7 +448,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -474,7 +478,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -504,7 +508,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -534,7 +538,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ Records = inputRecords };
 
         // Act
@@ -554,7 +558,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ Page = 0 };
 
         // Act
@@ -574,7 +578,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var searchDto = new JobApplicationSearchDto{ Page = 2, Records = 2 };
 
         // Act
@@ -603,7 +607,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         
         // Act
         var result = await service.GetByIdAsync(inputId);
@@ -630,7 +634,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var jobId = 1;
 
         // Act
@@ -657,7 +661,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var jobDto = new JobApplicationCreateDto
         {
             Position = "Senior Game Developer",
@@ -666,7 +670,7 @@ public class JobApplicationServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(jobDto, "test-user-id");
+        var result = await service.CreateAsync(jobDto);
 
         // Assert
         Assert.NotNull(result);
@@ -689,7 +693,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var jobDto = new JobApplicationCreateDto
         {
             Position = "Senior Game Developer",
@@ -698,7 +702,7 @@ public class JobApplicationServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(jobDto, "test-user-id");
+        var result = await service.CreateAsync(jobDto);
 
         // Assert
         Assert.Null(result);
@@ -714,7 +718,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         int jobId = 1;
         var jobUpdate = new JobApplicationUpdateDto{ Position = "Senior Fullstack Developer" };
 
@@ -738,7 +742,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var jobId = 99;
         var jobUpdate = new JobApplicationUpdateDto{ Position = "Senior Game Developer" };
 
@@ -759,7 +763,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var jobId = 1;
 
         // Act
@@ -781,7 +785,7 @@ public class JobApplicationServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new JobApplicationService(context);
+        var service = new JobApplicationService(context, _currentUserService);
         var jobId = 99;
 
         // Act

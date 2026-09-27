@@ -11,15 +11,18 @@ namespace JobTracker.Api.Services;
 public class JobApplicationService : IJobApplicationService
 {
     private readonly ApiDbContext _context;
-
-    public JobApplicationService (ApiDbContext context)
+    private readonly ICurrentUserService _currentUser;
+    public JobApplicationService (ApiDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<PagedResponse<JobApplicationResponseDto>> GetAllAsync(JobApplicationSearchDto search)
     {
         IQueryable<JobApplication> query = _context.Applications.AsNoTracking().AsQueryable();
+
+        query = query.Where(c => c.UserId == _currentUser.UserId);
 
         if (search.CompanyId != null)
             query = query.Where(j => j.CompanyId == search.CompanyId);
@@ -96,7 +99,7 @@ public class JobApplicationService : IJobApplicationService
         var job = await _context.Applications
             .Include(j => j.Company)
             .Include(ja => ja.ApplicationNotes)
-            .FirstOrDefaultAsync(jb => jb.Id == id);
+            .FirstOrDefaultAsync(jb => jb.Id == id && jb.UserId == _currentUser.UserId);
         if (job is null)
             return null;
         
@@ -120,9 +123,11 @@ public class JobApplicationService : IJobApplicationService
         };
     }
 
-    public async Task<JobApplicationResponseDto?> CreateAsync(JobApplicationCreateDto job, string userId)
+    public async Task<JobApplicationResponseDto?> CreateAsync(JobApplicationCreateDto job)
     {
-        var company = await _context.Companies.FindAsync(job.CompanyId);
+        var company = await _context.Companies.FirstOrDefaultAsync(c => 
+        c.Id == job.CompanyId && c.UserId == _currentUser.UserId);
+
         if (company is null)
             return default;
         
@@ -132,7 +137,7 @@ public class JobApplicationService : IJobApplicationService
             JobUrl = job.JobUrl,
             CompanyId = job.CompanyId,
             Company = company,
-            UserId = userId
+            UserId = _currentUser.UserId!
         };
         await _context.Applications.AddAsync(newJob);
         await _context.SaveChangesAsync();
@@ -152,7 +157,8 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<bool> UpdateAsync(int id, JobApplicationUpdateDto job)
     {
-        var jobDb = await _context.Applications.FindAsync(id);
+        var jobDb = await _context.Applications.FirstOrDefaultAsync(c =>
+        c.Id == id && c.UserId == _currentUser.UserId);
         if (jobDb is null)
             return false;
 
@@ -171,7 +177,8 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var job = await _context.Applications.FindAsync(id);
+        var job = await _context.Applications.FirstOrDefaultAsync(c =>
+        c.Id == id && c.UserId == _currentUser.UserId);
 
         if (job is null)
             return false;

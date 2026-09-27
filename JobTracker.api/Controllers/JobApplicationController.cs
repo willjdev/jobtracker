@@ -64,7 +64,7 @@ public class JobApplicationsController : ControllerBase
             {
                 return Unauthorized();
             }
-            var response = await _services.CreateAsync(job, userId);
+            var response = await _services.CreateAsync(job);
             if (response is null)
                 return BadRequest();
             else

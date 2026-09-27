@@ -7,7 +7,7 @@ public interface ICompanyService
 {
     Task<PagedResponse<CompanyResponseDto>> GetAllAsync(CompanySearchDto search);
     Task<CompanyResponseDto?> GetByIdAsync(int id);
-    Task<CompanyResponseDto?> CreateAsync(CompanyCreateDto company, string userId);
+    Task<CompanyResponseDto?> CreateAsync(CompanyCreateDto company);
     Task<bool> UpdateAsync(int id, CompanyUpdateDto company);
     Task<bool> DeleteAsync(int id); 
 }

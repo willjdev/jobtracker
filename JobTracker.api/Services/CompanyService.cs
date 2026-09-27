@@ -10,15 +10,19 @@ namespace JobTracker.Api.Services;
 public class CompanyService : ICompanyService
 {
     private readonly ApiDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public CompanyService(ApiDbContext context)
+    public CompanyService(ApiDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<PagedResponse<CompanyResponseDto>> GetAllAsync(CompanySearchDto search)
     {
         IQueryable<Company> query = _context.Companies.AsNoTracking().AsQueryable();
+
+        query = query.Where(c => c.UserId == _currentUser.UserId);
 
         if (!string.IsNullOrWhiteSpace(search.Name))
             query = query.Where(c => c.Name.Contains(search.Name));
@@ -84,7 +88,9 @@ public class CompanyService : ICompanyService
 
     public async Task<CompanyResponseDto?> GetByIdAsync(int id)
     {
-        var company = await _context.Companies.FindAsync(id);
+        var company = await _context.Companies.FirstOrDefaultAsync(c =>
+            c.Id == id && c.UserId == _currentUser.UserId
+        );
         if (company is null)
             return default;
         
@@ -98,15 +104,16 @@ public class CompanyService : ICompanyService
         };
     }
 
-    public async Task<CompanyResponseDto?> CreateAsync(CompanyCreateDto company, string userId)
+    public async Task<CompanyResponseDto?> CreateAsync(CompanyCreateDto company)
     {
+        var userId = _currentUser.UserId;
         var newCompany = new Company
         {
             Name = company.Name,
             Description = company.Description,
             Website = company.Website,
             Location = company.Location,
-            UserId = userId
+            UserId = userId!
         };
 
         await _context.Companies.AddAsync(newCompany);
@@ -124,7 +131,8 @@ public class CompanyService : ICompanyService
 
     public async Task<bool> UpdateAsync(int id, CompanyUpdateDto company)
     {
-        var companyDb = await _context.Companies.FindAsync(id);
+        var companyDb = await _context.Companies.FirstOrDefaultAsync(c =>
+        c.Id == id && c.UserId == _currentUser.UserId);
         if (companyDb is null)
             return false;
         
@@ -143,7 +151,8 @@ public class CompanyService : ICompanyService
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var company = await _context.Companies.FindAsync(id);
+        var company = await _context.Companies.FirstOrDefaultAsync(c =>
+        c.Id == id && c.UserId == _currentUser.UserId);
         if (company is null)
             return false;
         

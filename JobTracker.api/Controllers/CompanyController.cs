@@ -66,7 +66,7 @@ public class CompaniesController : ControllerBase
                 return Unauthorized();
             }
 
-            var response = await _services.CreateAsync(company, userId);
+            var response = await _services.CreateAsync(company);
             if (response is null)
                 return BadRequest();
             else 

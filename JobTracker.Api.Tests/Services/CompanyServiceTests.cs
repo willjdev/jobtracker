@@ -6,6 +6,11 @@ using JobTracker.Api.Dtos.CompanyDto;
 
 namespace JobTracker.Api.Tests.Services;
 
+public class FakeCurrentUserService : ICurrentUserService
+{
+    public string? UserId { get; set; }
+}
+
 public class CompanyServiceTests : ServiceTestBase
 {
     // Helper
@@ -127,6 +132,10 @@ public class CompanyServiceTests : ServiceTestBase
         await context.Companies.AddRangeAsync(companies);
         await context.SaveChangesAsync();
     }
+    private FakeCurrentUserService _currentUserService = new FakeCurrentUserService
+    {
+        UserId = "test-user-id"
+    };
 
     [Fact]
     public async Task GetAllAsync_WhenCompaniesExist_ReturnPagedResponse()
@@ -138,7 +147,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
         
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{};
 
         // Act
@@ -161,7 +170,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         var context = testContext.Context;
         
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{};
 
         // Act
@@ -188,7 +197,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ Name= name };
 
         // Act
@@ -227,7 +236,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ Location = location };
 
         // Act
@@ -265,7 +274,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ CreatedAt = date };
 
         // Act
@@ -302,7 +311,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ JobApplicationPosition = jobApplicationPosition };
 
         // Act
@@ -339,7 +348,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -370,7 +379,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -401,7 +410,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ FieldName = fieldName, SortByType = sortByType };
 
         // Act
@@ -425,7 +434,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ Name = "Micro", Records = 1 };
 
         // Act
@@ -449,7 +458,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ Records = 1, Page = 2 };
 
         // Act
@@ -475,7 +484,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ Records = inputRecords };
 
         // Act
@@ -496,7 +505,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var searchDto = new CompanySearchDto{ Page = -5 };
 
         // Act
@@ -518,7 +527,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service =  new CompanyService(context);
+        var service =  new CompanyService(context, _currentUserService);
 
         // Act
         var result = await service.GetByIdAsync(1);
@@ -536,7 +545,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         var context = testContext.Context;
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
 
         // Act
         var result = await service.GetByIdAsync(99);
@@ -555,7 +564,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var createDto = new CompanyCreateDto
         {
             Name = "Naughty Dog",
@@ -565,7 +574,7 @@ public class CompanyServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(createDto, "test-user-id");
+        var result = await service.CreateAsync(createDto);
 
         // Assert
         Assert.NotNull(result);
@@ -588,7 +597,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var testId = 1;
         var updateDto = new CompanyUpdateDto
         {
@@ -616,7 +625,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var testId = 99;
         var updateDto = new CompanyUpdateDto
         {
@@ -641,7 +650,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var testId = 1;
 
         // Act
@@ -663,7 +672,7 @@ public class CompanyServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new CompanyService(context);
+        var service = new CompanyService(context, _currentUserService);
         var testId = 99;
 
         // Act

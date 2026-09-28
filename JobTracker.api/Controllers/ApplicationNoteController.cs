@@ -57,14 +57,7 @@ public class ApplicationNotesController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-            {
-                return Unauthorized();
-            }
-
-            var response = await _services.CreateAsync(note, userId);
+            var response = await _services.CreateAsync(note);
             if (response is null)
                 return BadRequest();
             else

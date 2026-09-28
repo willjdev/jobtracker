@@ -7,7 +7,7 @@ public interface IApplicationNoteService
 {
     Task<List<ApplicationNoteResponseDto>> GetAllAsync();
     Task<ApplicationNoteResponseDto?> GetByIdAsync(int id);
-    Task<ApplicationNoteResponseDto?> CreateAsync(ApplicationNoteCreateDto note, string userId);
+    Task<ApplicationNoteResponseDto?> CreateAsync(ApplicationNoteCreateDto note);
     Task<bool> UpdateAsync(int id, ApplicationNoteUpdateDto note);
     Task<bool> DeleteAsync(int id);
     

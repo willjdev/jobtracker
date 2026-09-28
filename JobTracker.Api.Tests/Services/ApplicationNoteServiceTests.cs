@@ -147,6 +147,10 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         context.Notes.AddRange(notes);
         await context.SaveChangesAsync();
     }
+    private readonly FakeCurrentUserService _currentUserService = new FakeCurrentUserService
+    {
+        UserId = "test-user-id"
+    };
 
     [Fact]
     public async Task GetAllAsync_WhenApplicationNotesExists_ReturnsApplicationNoteResponseDtoList()
@@ -158,7 +162,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new ApplicationNoteService(context);    
+        var service = new ApplicationNoteService(context, _currentUserService);    
 
         // Act
         var result = await service.GetAllAsync();
@@ -180,7 +184,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         var context = testContext.Context;
 
-        var service = new ApplicationNoteService(context);
+        var service = new ApplicationNoteService(context, _currentUserService);
         
         // Act
         var result = await service.GetAllAsync();
@@ -204,7 +208,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new ApplicationNoteService(context);
+        var service = new ApplicationNoteService(context, _currentUserService);
         var noteId = id;
 
         // Act
@@ -232,7 +236,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new ApplicationNoteService(context);
+        var service = new ApplicationNoteService(context, _currentUserService);
         var noteDto = new ApplicationNoteCreateDto
         { 
             Content = "This is a good company. This is a good job",
@@ -240,7 +244,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(noteDto, "test-user-id");
+        var result = await service.CreateAsync(noteDto);
 
         // Assert
         Assert.NotNull(result);
@@ -261,7 +265,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new ApplicationNoteService(context);
+        var service = new ApplicationNoteService(context, _currentUserService);
         var noteDto = new ApplicationNoteCreateDto
         {
             Content = "Pretty well located job",
@@ -269,7 +273,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         };
 
         // Act
-        var result = await service.CreateAsync(noteDto, "test-user-id");
+        var result = await service.CreateAsync(noteDto);
 
         // Assert
         Assert.Null(result);
@@ -290,7 +294,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new ApplicationNoteService(context);
+        var service = new ApplicationNoteService(context, _currentUserService);
         var noteId = inputNoteId;
         var noteDto = new ApplicationNoteUpdateDto { Content = "Searched this company and it is good" };
 
@@ -322,7 +326,7 @@ public class ApplicationNoteServiceTests : ServiceTestBase
 
         await SeedDatabaseAsync(context);
 
-        var service = new ApplicationNoteService(context);
+        var service = new ApplicationNoteService(context, _currentUserService);
         var noteId = inputNoteId;
         
         // Act

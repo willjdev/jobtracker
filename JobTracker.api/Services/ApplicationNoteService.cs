@@ -9,16 +9,19 @@ namespace JobTracker.Api.Services;
 public class ApplicationNoteService : IApplicationNoteService
 {
     private readonly ApiDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public ApplicationNoteService(ApiDbContext context)
+    public ApplicationNoteService(ApiDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<List<ApplicationNoteResponseDto>> GetAllAsync()
     {
         return await _context.Notes
             .AsNoTracking()
+            .Where(n => n.UserId == _currentUser.UserId)
             .OrderByDescending(n => n.CreatedAt)
             .Select(n => new ApplicationNoteResponseDto
             {
@@ -31,16 +34,18 @@ public class ApplicationNoteService : IApplicationNoteService
 
     public async Task<ApplicationNoteResponseDto?> GetByIdAsync(int id)
     {
-        var note = await _context.Notes.FindAsync(id);
+        var note = await _context.Notes.FirstOrDefaultAsync(n =>
+        n.Id == id && n.UserId == _currentUser.UserId);
         if (note is null)
             return null;
         
         return new ApplicationNoteResponseDto{ Id = note.Id, Content = note.Content, CreatedAt = note.CreatedAt };
     }
 
-    public async Task<ApplicationNoteResponseDto?> CreateAsync(ApplicationNoteCreateDto note, string userId)
+    public async Task<ApplicationNoteResponseDto?> CreateAsync(ApplicationNoteCreateDto note)
     {
-        var job = await _context.Applications.FindAsync(note.JobApplicationId);
+        var job = await _context.Applications.FirstOrDefaultAsync(j =>
+        j.Id == note.JobApplicationId && j.UserId == _currentUser.UserId);
         if (job is null)
             return null;
         
@@ -49,7 +54,7 @@ public class ApplicationNoteService : IApplicationNoteService
             Content = note.Content,
             JobApplicationId = note.JobApplicationId,
             JobApplication = job,
-            UserId = userId
+            UserId = _currentUser.UserId!
         };
         await _context.Notes.AddAsync(newNote);
         await _context.SaveChangesAsync();
@@ -64,7 +69,8 @@ public class ApplicationNoteService : IApplicationNoteService
 
     public async Task<bool> UpdateAsync(int id, ApplicationNoteUpdateDto note)
     {
-        var noteDb = await _context.Notes.FindAsync(id);
+        var noteDb = await _context.Notes.FirstOrDefaultAsync(n =>
+        n.Id == id && n.UserId == _currentUser.UserId);
         if (noteDb is null)
             return false;
         
@@ -76,7 +82,8 @@ public class ApplicationNoteService : IApplicationNoteService
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var note = await _context.Notes.FindAsync(id);
+        var note = await _context.Notes.FirstOrDefaultAsync(n =>
+        n.Id == id && n.UserId == _currentUser.UserId);
         if (note is null)
             return false;
         

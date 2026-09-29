@@ -675,6 +675,32 @@ public class CompanyServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task UpdateAsync_WhenUserIdDoesNotMatch_ReturnsFalse()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var testId = 4;
+        var testUserId = new FakeCurrentUserService{ UserId = "test" };
+        var service = new CompanyService(context, testUserId);
+        var updateDto = new CompanyUpdateDto
+        {
+            Name = "Xbox Colombia",
+            Description = "Big gaming company around the World"
+        };
+
+        // Act
+        var result = await service.UpdateAsync(testId, updateDto);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
     public async Task UpdateAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange

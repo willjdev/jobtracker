@@ -748,6 +748,28 @@ public class CompanyServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task DeleteAsync_WhenUserIdDoesNotMatch_ReturnsFalse()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var testId = 4;
+        var testUserId = new FakeCurrentUserService{ UserId = "test" };
+        var service = new CompanyService(context, testUserId);
+
+        // Act
+        var result = await service.DeleteAsync(testId);
+
+        // Assert
+        Assert.False(result);
+
+    }
+
+    [Fact]
     public async Task DeleteAsync_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange

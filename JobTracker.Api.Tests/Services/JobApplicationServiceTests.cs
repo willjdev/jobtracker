@@ -832,6 +832,27 @@ public class JobApplicationServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task UpdateAsync_WhenJobApplicationBelognstoDifferentUser_ReturnsFalse()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context, _currentUserService);
+        int jobId = 5;
+        var jobUpdate = new JobApplicationUpdateDto{ Position = "Senior Game Developer" };
+
+        // Act
+        var result = await service.UpdateAsync(jobId, jobUpdate);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
     public async Task UpdateAsync_WhenJobApplicationDoesNotExists_ReturnsFalse()
     {
         // Arrange

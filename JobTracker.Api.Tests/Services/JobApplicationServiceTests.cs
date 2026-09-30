@@ -9,27 +9,42 @@ namespace JobTracker.Api.Tests.Services;
 
 public class JobApplicationServiceTests : ServiceTestBase
 {
-    private async Task<ApplicationUser> SeedUserAsync(ApiDbContext context)
+    private async Task<List<ApplicationUser>> SeedUserAsync(ApiDbContext context)
     {
-        var user = new ApplicationUser
+        var users = new List<ApplicationUser>
         {
-            Id = "test-user-id",
-            Name = "Test",
-            Lastname = "User",
-            UserName = "test@email.com",
-            NormalizedUserName = "TEST@EMAIL.COM",
-            Email = "test@email.com",
-            NormalizedEmail = "TEST@EMAIL.COM"
+            new()
+            {
+                Id = "test-user-id",
+                Name = "Test",
+                Lastname = "User",
+                UserName = "test@email.com",
+                NormalizedUserName = "TEST@EMAIL.COM",
+                Email = "test@email.com",
+                NormalizedEmail = "TEST@EMAIL.COM"    
+            },
+            new()
+            {
+                Id = "test-user-id-2",
+                Name = "Test",
+                Lastname = "User",
+                UserName = "test-2@email.com",
+                NormalizedUserName = "TEST-2@EMAIL.COM",
+                Email = "test-2@email.com",
+                NormalizedEmail = "TEST-2@EMAIL.COM"    
+            }
         };
 
-        await context.Users.AddAsync(user);
+        await context.Users.AddRangeAsync(users);
         await context.SaveChangesAsync();
 
-        return user;
+        return users;
     }
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
-        var user = await SeedUserAsync(context);
+        var users = await SeedUserAsync(context);
+        var user = users[0];
+        var userTwo = users[1];
 
         var companies = new List<Company>
         {
@@ -62,6 +77,16 @@ public class JobApplicationServiceTests : ServiceTestBase
                 Location = "Netherlands",
                 UserId = user.Id,
                 CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
+            },
+            new()
+            {
+                Id = 5,
+                Name = "Xbox Colombia",
+                Description = "Big Company, local",
+                Website = "www.xbox.com",
+                Location = "Colombia",
+                UserId = userTwo.Id,
+                CreatedAt = new DateTime(2026, 10, 2, 8, 20, 0)
             }
         };
         var jobApplications = new List<JobApplication>
@@ -177,6 +202,35 @@ public class JobApplicationServiceTests : ServiceTestBase
                         CreatedAt = new DateTime(2026, 8, 14, 10, 0, 0),
                         JobApplicationId = 4,
                         UserId = user.Id
+                    }
+                }
+            },
+            new()
+            {
+                Id = 5,
+                Position = "Junior Game Developer",
+                Status = "Applied",
+                AppliedAt = new DateTime(2026, 9, 22, 6, 40, 0),
+                JobUrl = "https//www.job.com",
+                CompanyId = 5,
+                UserId = userTwo.Id,
+                ApplicationNotes = new List<ApplicationNote>
+                {
+                    new()
+                    {
+                        Id = 9,
+                        Content = "Sent an email to recruiter",
+                        CreatedAt = new DateTime(2026, 9, 24, 9, 0, 0),
+                        JobApplicationId = 5,
+                        UserId = userTwo.Id
+                    },
+                    new()
+                    {
+                        Id = 10,
+                        Content = "Meeting tomorrow!!",
+                        CreatedAt = new DateTime(2026, 9, 28, 10, 0, 0),
+                        JobApplicationId = 5,
+                        UserId = userTwo.Id
                     }
                 }
             }

@@ -758,6 +758,31 @@ public class JobApplicationServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task CreateAsync_WhenCompanyBelongsToDifferentUser_ReturnsNull()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context, _currentUserService);
+        var jobDto = new JobApplicationCreateDto
+        {
+            Position = "Senior Game Developer",
+            JobUrl = "https://www.job.com",
+            CompanyId = 5
+        };
+
+        // Act
+        var result = await service.CreateAsync(jobDto);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task CreateAsync_WhenCompanyDoesNotExists_ReturnsNull()
     {
         // Arrange

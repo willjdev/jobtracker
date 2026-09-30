@@ -679,6 +679,26 @@ public class JobApplicationServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task GetByIdAsync_WhenJobApplicationBelongsToDifferentUser_ReturnsNull()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context, _currentUserService);
+        var testId = 5;
+
+        // Act
+        var result = await service.GetByIdAsync(testId);
+
+        // Assert
+        Assert.Null(result); 
+    }
+
+    [Fact]
     public async Task GetByIdAsync_WhenJobApplicationHasNotes_ReturnsItemWithNotes()
     {
         // Arrange

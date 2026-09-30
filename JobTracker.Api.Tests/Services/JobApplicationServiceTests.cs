@@ -896,6 +896,26 @@ public class JobApplicationServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task DeleteAsync_WhenJobApplicationBelongsToDifferentUser_ReturnsFalse()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new JobApplicationService(context, _currentUserService);
+        int jobId = 5;
+
+        // Act
+        var result = await service.DeleteAsync(jobId);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
     public async Task DeleteAsync_WhenJobApplicationDoesNotExists_ReturnsFalse()
     {
         // Arrange

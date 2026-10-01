@@ -9,27 +9,42 @@ namespace JobTracker.Api.Tests.Services;
 
 public class ApplicationNoteServiceTests : ServiceTestBase
 {
-    private async Task<ApplicationUser> SeedUserAsync(ApiDbContext context)
+    private async Task<List<ApplicationUser>> SeedUserAsync(ApiDbContext context)
     {
-        var user = new ApplicationUser
+        var users = new List<ApplicationUser>
         {
-            Id = "test-user-id",
-            Name = "Test",
-            Lastname = "User",
-            UserName = "test@email.com",
-            NormalizedUserName = "TEST@EMAIL.COM",
-            Email = "test@email.com",
-            NormalizedEmail = "TEST@EMAIL.COM"
+            new()
+            {
+                Id = "test-user-id",
+                Name = "Test",
+                Lastname = "User",
+                UserName = "test@email.com",
+                NormalizedUserName = "TEST@EMAIL.COM",
+                Email = "test@email.com",
+                NormalizedEmail = "TEST@EMAIL.COM"    
+            },
+            new()
+            {
+                Id = "test-user-id-2",
+                Name = "Test",
+                Lastname = "User",
+                UserName = "test-2@email.com",
+                NormalizedUserName = "TEST-2@EMAIL.COM",
+                Email = "test-2@email.com",
+                NormalizedEmail = "TEST-2@EMAIL.COM"    
+            }
         };
 
-        await context.Users.AddAsync(user);
+        await context.Users.AddRangeAsync(users);
         await context.SaveChangesAsync();
 
-        return user;
+        return users;
     }
     private async Task SeedDatabaseAsync(ApiDbContext context)
     {
-        var user = await SeedUserAsync(context);
+        var users = await SeedUserAsync(context);
+        var user = users[0];
+        var userTwo = users[1];
 
         var companies = new List<Company>
         {
@@ -62,6 +77,16 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 Location = "Netherlands",
                 UserId = user.Id,
                 CreatedAt = new DateTime(2026, 8, 4, 8, 20, 0)
+            },
+            new()
+            {
+                Id = 5,
+                Name = "Xbox Colombia",
+                Description = "Big Company, local",
+                Website = "www.xbox.com",
+                Location = "Colombia",
+                UserId = userTwo.Id,
+                CreatedAt = new DateTime(2026, 10, 2, 8, 20, 0)
             }
         };
 
@@ -104,6 +129,16 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 JobUrl = "https//www.job.com",
                 UserId = user.Id,
                 CompanyId = 4
+            },
+            new()
+            {
+                Id = 5,
+                Position = "Junior Game Developer",
+                Status = "Applied",
+                AppliedAt = new DateTime(2026, 9, 22, 6, 40, 0),
+                JobUrl = "https://www.job.com",
+                UserId = userTwo.Id,
+                CompanyId = 5
             }
         };
         var notes = new List<ApplicationNote>
@@ -139,6 +174,14 @@ public class ApplicationNoteServiceTests : ServiceTestBase
                 CreatedAt = new DateTime(2026, 8, 18, 9, 20 ,0),
                 UserId = user.Id,
                 JobApplicationId = 4
+            },
+            new()
+            {
+                Id = 5,
+                Content = "Sent the email to the recruiter",
+                CreatedAt = new DateTime(2026, 9, 22, 9, 20 ,0),
+                UserId = userTwo.Id,
+                JobApplicationId = 5
             }
         };
     
@@ -256,6 +299,26 @@ public class ApplicationNoteServiceTests : ServiceTestBase
     }
 
     [Fact]
+    public async Task GetByIdAsync_WhenApplicationNoteBelongsToDifferentUser_ReturnsNull()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new ApplicationNoteService(context, _currentUserService);
+        var testId = 5;
+
+        // Act
+        var result = await service.GetByIdAsync(testId);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task CreateAsync_WhenJobApplicationDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -270,6 +333,30 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         {
             Content = "Pretty well located job",
             JobApplicationId = 99
+        };
+
+        // Act
+        var result = await service.CreateAsync(noteDto);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenJobApplicationBelognsToDifferentUser_ReturnsNull()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new ApplicationNoteService(context, _currentUserService);
+        var noteDto = new ApplicationNoteCreateDto
+        {
+            Content = "Pretty well located job",
+            JobApplicationId = 5
         };
 
         // Act
@@ -311,6 +398,27 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         }
     }
 
+    [Fact]
+    public async Task UpdateAsync_WhenApplicationNoteBelongsToDifferentUser_ReturnsFalse()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new ApplicationNoteService(context, _currentUserService);
+        var noteDto = new ApplicationNoteUpdateDto { Content = "I like Xbox. Gaming company" };
+        var testId = 5;
+
+        // Act
+        var result = await service.UpdateAsync(testId, noteDto);
+
+        // Assert
+        Assert.False(result);
+    }
+
     [Theory]
     [InlineData(1, true)]
     [InlineData(99, false)]
@@ -347,5 +455,25 @@ public class ApplicationNoteServiceTests : ServiceTestBase
         {
             Assert.Equal(notesCountBefore, notesCountAfter);
         }
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenApplicationNoteBelongsToDifferentUser_ReturnsFalse()
+    {
+        // Arrange
+        await using var testContext = await CreateSqliteTestContextAsync();
+
+        var context = testContext.Context;
+
+        await SeedDatabaseAsync(context);
+
+        var service = new ApplicationNoteService(context, _currentUserService);
+        var testId = 5;
+
+        // Act
+        var result = await service.DeleteAsync(testId);
+
+        // Assert
+        Assert.False(result);
     }
 }

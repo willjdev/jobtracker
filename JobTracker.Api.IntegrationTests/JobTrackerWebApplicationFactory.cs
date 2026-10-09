@@ -7,43 +7,48 @@ using JobTracker.Api.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Hosting;
 
 
 namespace JobTracker.Api.IntegrationTests;
 
 public class JobTrackerWebApplicationFactory : WebApplicationFactory<Program>
 {
-    private DbConnection? _dbConnection;
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll(typeof(DbContextOptions<ApiDbContext>));
+            services.RemoveAll<IDbContextOptionsConfiguration<ApiDbContext>>();
 
-            _dbConnection = new SqliteConnection("Datasource=:memory:");
-            _dbConnection.Open();
-
-            services.AddDbContext<ApiDbContext>(options =>
+            services.AddSingleton<DbConnection>(_ =>
             {
-                options.UseSqlite(_dbConnection);
+                var connection = new SqliteConnection(
+                    "Datasource=:memory:");
+                connection.Open();
+                return connection;
             });
-            var dbContext = CreateDbContext(services);
-            dbContext.Database.EnsureCreated();
-            
+
+            services.AddDbContext<ApiDbContext>((sp, options) =>
+            {
+                var connection = sp.GetRequiredService<DbConnection>();
+
+                options.UseSqlite(connection);
+            });
         });
     }
 
-    private static ApiDbContext CreateDbContext(IServiceCollection services)
+    protected override IHost CreateHost(IHostBuilder builder)
     {
-        var serviceProvider = services.BuildServiceProvider();
-        using var scope = serviceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-        return db;
-    }
+        var host = base.CreateHost(builder);
 
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        _dbConnection?.Dispose();
+        using var scope = host.Services.CreateScope();
+
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();   
+
+        db.Database.EnsureCreated();
+
+        return host;
     }
 }

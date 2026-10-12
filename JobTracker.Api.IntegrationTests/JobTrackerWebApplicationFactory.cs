@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Hosting;
+using JobTracker.Api.IntegrationTests.Authentication;
+using Microsoft.AspNetCore.Authentication;
 
 
 namespace JobTracker.Api.IntegrationTests;
@@ -36,6 +38,18 @@ public class JobTrackerWebApplicationFactory : WebApplicationFactory<Program>
 
                 options.UseSqlite(connection);
             });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = 
+                    TestAuthHandler.Scheme;
+                
+                options.DefaultChallengeScheme =
+                    TestAuthHandler.Scheme;
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                TestAuthHandler.Scheme,
+                options => {});
         });
     }
 

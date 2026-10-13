@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Hosting;
 using JobTracker.Api.IntegrationTests.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using JobTracker.Api.Models;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace JobTracker.Api.IntegrationTests;
@@ -62,6 +64,28 @@ public class JobTrackerWebApplicationFactory : WebApplicationFactory<Program>
         var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();   
 
         db.Database.EnsureCreated();
+
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var user = new ApplicationUser
+        {
+            Id = "test-user-id",
+            Name = "Test",
+            Lastname = "User",
+            UserName = "test@email.com",
+            Email = "test@email.com"
+        };
+
+        var result = userManager.CreateAsync(user)
+            .GetAwaiter()
+            .GetResult();
+        
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(
+                string.Join("; ", result.Errors.Select(e => e.Description))
+            );
+        }
 
         return host;
     }

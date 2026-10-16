@@ -97,4 +97,29 @@ public class CompaniesControllerTests
         Assert.NotNull(result);
         Assert.Empty(result.Items);
     }
+
+    [Fact]
+    public async Task Get_WhenCompanyExists_ReturnsCompany()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var companyId = 1;
+
+        // Act
+        var response = await client.GetAsync($"/api/companies/{companyId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<CompanyResponseDto>();
+        Assert.NotNull(result);
+        Assert.Equal("Microsoft", result.Name);
+    }
 }

@@ -78,4 +78,23 @@ public class CompaniesControllerTests
         Assert.Contains(result.Items, c => c.Name == "Microsoft");
         Assert.Contains(result.Items, c => c.Name == "Santa Monica");
     }
+
+    [Fact]
+    public async Task GetAll_WhenNoCompaniesExist_ReturnsEmptyList()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/api/companies");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+
+        Assert.NotNull(result);
+        Assert.Empty(result.Items);
+    }
 }

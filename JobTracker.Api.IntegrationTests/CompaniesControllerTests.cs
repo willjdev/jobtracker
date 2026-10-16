@@ -8,10 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
 
-public class CompaniesControllerTests : IClassFixture<JobTrackerWebApplicationFactory>
+public class CompaniesControllerTests
 {
-    private readonly HttpClient _client;
-    private readonly JobTrackerWebApplicationFactory _factory;
     private async Task SeedDataAsync(ApiDbContext context)
     {
         var userId = "test-user-id";
@@ -43,19 +41,15 @@ public class CompaniesControllerTests : IClassFixture<JobTrackerWebApplicationFa
         await context.SaveChangesAsync();
     }
 
-    public CompaniesControllerTests(JobTrackerWebApplicationFactory factory)
-    {
-        _client = factory.CreateClient();
-        _factory = factory;
-    }
-
     [Fact]
     public async Task GetAll_WhenUserIsAuthenticated_ReturnsOk()
     {
         // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
 
         // Act
-        var response = await _client.GetAsync("/api/companies");
+        var response = await client.GetAsync("/api/companies");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -65,14 +59,16 @@ public class CompaniesControllerTests : IClassFixture<JobTrackerWebApplicationFa
     public async Task GetAll_WhenCompaniesExist_ReturnsCompanies()
     {
         // Arrange
-        using (var scope = _factory.Services.CreateScope())
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
             await SeedDataAsync(db);
         }
 
         //Act
-        var response = await _client.GetAsync("api/companies");
+        var response = await client.GetAsync("api/companies");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

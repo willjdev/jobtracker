@@ -122,4 +122,20 @@ public class CompaniesControllerTests
         Assert.NotNull(result);
         Assert.Equal("Microsoft", result.Name);
     }
+
+    [Fact]
+    public async Task Get_WhenCompanyDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var companyId = 99;
+
+        // Act
+        var response = await client.GetAsync($"api/companies/{companyId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }

@@ -4,6 +4,7 @@ using JobTracker.Api.Data;
 using JobTracker.Api.Dtos.Common;
 using JobTracker.Api.Dtos.CompanyDto;
 using JobTracker.Api.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
@@ -137,5 +138,34 @@ public class CompaniesControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_WhenDataIsValid_CreatesCompany()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        
+
+        var company = new CompanyCreateDto
+        {
+            Name = "Naughty Dog",
+            Description = "Good Game Company",
+            Website = "http://www.naughtydog.com",
+            Location = "Remote"
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/companies", company);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var companyDb = await db.Companies.SingleOrDefaultAsync(c => c.Name == "Naughty Dog");
+        Assert.NotNull(companyDb);
+        Assert.Equal("Naughty Dog", companyDb.Name);
+        Assert.Equal("test-user-id", companyDb.UserId);
     }
 }

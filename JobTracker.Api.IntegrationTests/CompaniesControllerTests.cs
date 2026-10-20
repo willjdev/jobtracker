@@ -171,7 +171,7 @@ public class CompaniesControllerTests
     }
 
     [Fact]
-    public async Task Create_WheenWebsiteIsInvalid_ReturnsBadRequest()
+    public async Task Create_WhenWebsiteIsInvalid_ReturnsBadRequest()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();

@@ -176,8 +176,7 @@ public class CompaniesControllerTests
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
         using var client = factory.CreateClient();
-        using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        
 
         var company = new CompanyCreateDto
         {
@@ -192,11 +191,15 @@ public class CompaniesControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        var companiesCount = await db.Companies.CountAsync();
+
         var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
         Assert.NotNull(problem);
         Assert.Equal(400, problem.Status);
-        Assert.True(problem.Errors.ContainsKey("Website"));
+        Assert.Contains("Website", problem.Errors.Keys);
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var companiesCount = await db.Companies.CountAsync();
         Assert.Equal(0, companiesCount);
     }
 }

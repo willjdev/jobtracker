@@ -202,4 +202,35 @@ public class CompaniesControllerTests
         var companiesCount = await db.Companies.CountAsync();
         Assert.Equal(0, companiesCount);
     }
+
+    [Fact]
+    public async Task Updat_WhenDataIsValid_ReturnsNoContent()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var companyId = 1;
+        var companyData = new CompanyUpdateDto
+        {
+            Name = "Microsoft Colombia",
+            Description = "Good company in Colombia"
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/companies/{companyId}", companyData);
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        using var scopeResponse = factory.Services.CreateScope();
+        var dbResponse = scopeResponse.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var companyInDb = await dbResponse.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
+        Assert.NotNull(companyInDb);
+        Assert.Equal(companyData.Name, companyInDb.Name);
+    }
 }

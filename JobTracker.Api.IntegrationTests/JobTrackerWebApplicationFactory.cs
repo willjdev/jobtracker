@@ -67,24 +67,38 @@ public class JobTrackerWebApplicationFactory : WebApplicationFactory<Program>
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var user = new ApplicationUser
+        var users = new List<ApplicationUser>
         {
-            Id = "test-user-id",
-            Name = "Test",
-            Lastname = "User",
-            UserName = "test@email.com",
-            Email = "test@email.com"
+            new()
+            {
+                Id = "test-user-id",
+                Name = "Test",
+                Lastname = "User",
+                UserName = "test@email.com",
+                Email = "test@email.com" 
+            },
+            new()
+            {
+                Id = "test-user-id2",
+                Name = "Test Two",
+                Lastname = "User Two",
+                UserName = "test2@email.com",
+                Email = "test2@email.com" 
+            }
         };
 
-        var result = userManager.CreateAsync(user)
-            .GetAwaiter()
-            .GetResult();
-        
-        if (!result.Succeeded)
+        foreach (var testUser in users)
         {
-            throw new InvalidOperationException(
-                string.Join("; ", result.Errors.Select(e => e.Description))
-            );
+            var result = userManager.CreateAsync(testUser)
+                .GetAwaiter()
+                .GetResult();
+            
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    string.Join("; ",
+                        result.Errors.Select(e => e.Description)));
+            }
         }
 
         return host;

@@ -22,11 +22,12 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var userId = Request.Headers["X-Test-UserId"].FirstOrDefault() ?? "test-user-id";
         var claims = new[]
         {
             new Claim(
                 ClaimTypes.NameIdentifier,
-                "test-user-id"),
+                userId),
             new Claim(
                 ClaimTypes.Name,
                 "Test User")

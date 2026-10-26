@@ -254,4 +254,28 @@ public class CompaniesControllerTests
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Delete_WhenDataIsValid_ReturnsNoContent()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        await SeedDataAsync(db);
+
+        var companyId = 1;
+
+        // Act
+        var response = await client.DeleteAsync($"/api/companies/{companyId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
+        var companyInDbCount = await db.Companies.CountAsync();
+        Assert.Null(companyInDb);
+        Assert.Equal(1, companyInDbCount);
+        
+    }
 }

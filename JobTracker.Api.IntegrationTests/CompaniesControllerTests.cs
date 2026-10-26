@@ -233,4 +233,25 @@ public class CompaniesControllerTests
         Assert.NotNull(companyInDb);
         Assert.Equal(companyData.Name, companyInDb.Name);
     }
+
+    [Fact]
+    public async Task Update_WhenCompanyDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var companyId = 1;
+        var companyData = new CompanyUpdateDto
+        {
+            Name = "Microsoft Colombia",
+            Description = "Good company in Colombia"
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/companies/{companyId}", companyData);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }

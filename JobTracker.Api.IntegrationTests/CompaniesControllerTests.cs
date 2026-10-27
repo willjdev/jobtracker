@@ -36,6 +36,16 @@ public class CompaniesControllerTests
                 Location = "Remote",
                 UserId = userId,
                 CreatedAt = new DateTime(2026, 7, 20, 7, 0, 0),
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Naughty Dog",
+                Description = "Game Company",
+                Website = "www.naughtydog.com",
+                Location = "Remote",
+                UserId = "test-user-id2",
+                CreatedAt = new DateTime(2026, 8, 28, 8, 0, 0),
             }
         };
         
@@ -136,6 +146,28 @@ public class CompaniesControllerTests
 
         // Act
         var response = await client.GetAsync($"api/companies/{companyId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Get_WhenCompanyBelongsToAnotherUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+        client.DefaultRequestHeaders.Add("X-Test-UserId", "test-user-id2");
+
+        var companyId = 1;
+
+        // Act
+        var response = await client.GetAsync($"/api/companies/{companyId}");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -256,6 +288,32 @@ public class CompaniesControllerTests
     }
 
     [Fact]
+    public async Task Update_WhenCompanyBelongsToAnotherUser_Returns()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        await SeedDataAsync(db);
+
+        client.DefaultRequestHeaders.Add("X-Test-UserId", "test-user-id2");
+
+        var companyId = 1;
+        var companyData = new CompanyUpdateDto
+        {
+            Name = "Microsoft Colombia",
+            Description = "Good company in Colombia"
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/companies/{companyId}", companyData);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Delete_WhenDataIsValid_ReturnsNoContent()
     {
         // Arrange
@@ -275,7 +333,7 @@ public class CompaniesControllerTests
         var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
         var companyInDbCount = await db.Companies.CountAsync();
         Assert.Null(companyInDb);
-        Assert.Equal(1, companyInDbCount);
+        Assert.Equal(2, companyInDbCount);
     }
 
     [Fact]

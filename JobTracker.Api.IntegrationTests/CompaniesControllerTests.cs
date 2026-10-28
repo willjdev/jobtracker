@@ -347,10 +347,11 @@ public class CompaniesControllerTests
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-            var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
-            var companyInDbCount = await db.Companies.CountAsync();
-            Assert.Null(companyInDb);
-            Assert.Equal(2, companyInDbCount);
+            var companies = await db.Companies.AsNoTracking().ToListAsync();
+            Assert.Equal(2, companies.Count);
+            Assert.DoesNotContain(companies, c => c.Id == 1);
+            Assert.Contains(companies, c => c.Id == 2);
+            Assert.Contains(companies, c => c.Id == 3);
         }
     }
 

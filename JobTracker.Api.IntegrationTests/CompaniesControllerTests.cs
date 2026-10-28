@@ -351,4 +351,29 @@ public class CompaniesControllerTests
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Delete_WhenCompanyBelongsToAnotherUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        await SeedDataAsync(db);
+
+        client.DefaultRequestHeaders.Add("X-Test-UserId", "test-user-id2");
+
+        var companyId = 1;
+
+        // Act
+        var response = await client.DeleteAsync($"/api/companies/{companyId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var companyCount = await db.Companies.CountAsync();
+        var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
+        Assert.NotNull(companyInDb);
+        Assert.Equal(3, companyCount);
+    }
 }

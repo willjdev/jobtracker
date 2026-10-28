@@ -237,7 +237,7 @@ public class CompaniesControllerTests
     }
 
     [Fact]
-    public async Task Updat_WhenDataIsValid_ReturnsNoContent()
+    public async Task Update_WhenDataIsValid_ReturnsNoContent()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
@@ -289,7 +289,7 @@ public class CompaniesControllerTests
     }
 
     [Fact]
-    public async Task Update_WhenCompanyBelongsToAnotherUser_Returns()
+    public async Task Update_WhenCompanyBelongsToAnotherUser_ReturnsNotFound()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
@@ -356,7 +356,7 @@ public class CompaniesControllerTests
     }
 
     [Fact]
-    public async Task Delete_WhenCompanyDoesNotExits_ReturnsNotFound()
+    public async Task Delete_WhenCompanyDoesNotExit_ReturnsNotFound()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
@@ -390,9 +390,13 @@ public class CompaniesControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        var companyCount = await db.Companies.CountAsync();
-        var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
-        Assert.NotNull(companyInDb);
-        Assert.Equal(3, companyCount);
+        using (var verifyScope = factory.Services.CreateScope())
+        {
+            var dbVerify = verifyScope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            var companyCount = await dbVerify.Companies.CountAsync();
+            var companyInDb = await dbVerify.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
+            Assert.NotNull(companyInDb);
+            Assert.Equal(3, companyCount);
+        }
     }
 }

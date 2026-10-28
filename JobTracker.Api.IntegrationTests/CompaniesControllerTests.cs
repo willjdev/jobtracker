@@ -294,9 +294,11 @@ public class CompaniesControllerTests
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
         using var client = factory.CreateClient();
-        using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-        await SeedDataAsync(db);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
 
         client.DefaultRequestHeaders.Add("X-Test-UserId", "test-user-id2");
 
@@ -312,6 +314,15 @@ public class CompaniesControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        using (var verifyScope = factory.Services.CreateScope())
+        {
+            var db = verifyScope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            var company = await db.Companies.AsNoTracking().SingleAsync(c => c.Id == companyId);
+            Assert.Equal("Microsoft", company.Name);
+            Assert.Equal("Big Company", company.Description);
+            Assert.Equal("test-user-id", company.UserId);
+        }
     }
 
     [Fact]

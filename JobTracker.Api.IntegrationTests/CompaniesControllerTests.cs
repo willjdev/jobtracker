@@ -89,6 +89,7 @@ public class CompaniesControllerTests
         Assert.Equal(2, result.Items.Count);
         Assert.Contains(result.Items, c => c.Name == "Microsoft");
         Assert.Contains(result.Items, c => c.Name == "Santa Monica");
+        Assert.DoesNotContain(result.Items, c => c.Name == "Naughty Dog");
     }
 
     [Fact]

@@ -320,9 +320,11 @@ public class CompaniesControllerTests
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
         using var client = factory.CreateClient();
-        using var scope = factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-        await SeedDataAsync(db);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
 
         var companyId = 1;
 
@@ -331,10 +333,14 @@ public class CompaniesControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
-        var companyInDbCount = await db.Companies.CountAsync();
-        Assert.Null(companyInDb);
-        Assert.Equal(2, companyInDbCount);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            var companyInDb = await db.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
+            var companyInDbCount = await db.Companies.CountAsync();
+            Assert.Null(companyInDb);
+            Assert.Equal(2, companyInDbCount);
+        }
     }
 
     [Fact]

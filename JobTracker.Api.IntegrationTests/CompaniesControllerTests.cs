@@ -199,9 +199,9 @@ public class CompaniesControllerTests
 
         var company = new CompanyCreateDto
         {
-            Name = "Naughty Dog",
+            Name = "Nintendo",
             Description = "Good Game Company",
-            Website = "http://www.naughtydog.com",
+            Website = "http://www.nintendo.com",
             Location = "Remote"
         };
 
@@ -212,9 +212,9 @@ public class CompaniesControllerTests
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-        var companyDb = await db.Companies.SingleOrDefaultAsync(c => c.Name == "Naughty Dog");
+        var companyDb = await db.Companies.SingleOrDefaultAsync(c => c.Name == "Nintendo");
         Assert.NotNull(companyDb);
-        Assert.Equal("Naughty Dog", companyDb.Name);
+        Assert.Equal("Nintendo", companyDb.Name);
         Assert.Equal("test-user-id", companyDb.UserId);
     }
 
@@ -228,11 +228,12 @@ public class CompaniesControllerTests
 
         var company = new CompanyCreateDto
         {
-            Name = "Naughty Dog",
+            Name = "Nintendo",
             Description = "Good Game Company",
-            Website = "www.naughtydog.com",
+            Website = "www.nintendo.com",
             Location = "Remote"
         };
+
 
         // Act
         var response =  await client.PostAsJsonAsync("/api/companies", company);
@@ -249,6 +250,35 @@ public class CompaniesControllerTests
         var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
         var companiesCount = await db.Companies.CountAsync();
         Assert.Equal(0, companiesCount);
+    }
+
+    [Fact]
+    public async Task Create_WhenUserDoesNotHasAuthorization_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Unauthenticated", "false");
+
+        var company = new CompanyCreateDto
+        {
+            Name = "Nintendo",
+            Description = "Good Game Company",
+            Website = "http://www.nintendo.com",
+            Location = "Remote"
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync($"/api/companies", company);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            var companies = await db.Companies.AsNoTracking().ToListAsync();
+            Assert.Empty(companies);
+        }
     }
 
     [Fact]

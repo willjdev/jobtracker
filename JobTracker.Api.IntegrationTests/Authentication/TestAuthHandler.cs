@@ -23,6 +23,8 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var userId = Request.Headers["X-Test-UserId"].FirstOrDefault() ?? "test-user-id";
+        var authentication = Request.Headers["X-Test-Unauthenticated"].FirstOrDefault() ?? "true";
+
         var claims = new[]
         {
             new Claim(
@@ -39,6 +41,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
 
         var ticket = new AuthenticationTicket(principal, Scheme);
 
-        return Task.FromResult(AuthenticateResult.Success(ticket));
+        //return Task.FromResult(AuthenticateResult.Success(ticket));
+        return authentication == "true" ? Task.FromResult(AuthenticateResult.Success(ticket)) : Task.FromResult(AuthenticateResult.NoResult());
     }
 }

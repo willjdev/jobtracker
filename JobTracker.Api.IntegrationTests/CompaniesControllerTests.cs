@@ -112,6 +112,21 @@ public class CompaniesControllerTests
     }
 
     [Fact]
+    public async Task GetAll_WhenUserDoesNotHasAuthorization_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Unauthenticated", "false");
+
+        // Act
+        var response = await client.GetAsync("/api/companies");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Get_WhenCompanyExists_ReturnsCompany()
     {
         // Arrange

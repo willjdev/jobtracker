@@ -221,6 +221,29 @@ public class CompaniesControllerTests
     }
 
     [Fact]
+    public async Task GetAll_WhenFiltering_ReturnsOnlyCurrentUserCompanies()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/companies");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Items.Count);
+        Assert.DoesNotContain(result.Items, c => c.Id == 3);
+    }
+
+    [Fact]
     public async Task Get_WhenCompanyExists_ReturnsCompany()
     {
         // Arrange

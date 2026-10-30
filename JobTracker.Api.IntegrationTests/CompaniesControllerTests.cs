@@ -158,6 +158,37 @@ public class CompaniesControllerTests
     }
 
     [Fact]
+    public async Task GetAll_WhenSecondPageIsRequested_ReturnsCorrectItems()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var searchDto = new CompanySearchDto
+        {
+            Page = 2,
+            Records = 1
+        };
+
+        // Act
+        var response = await client.GetAsync("/api/companies?page=2&records=1");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.TotalRecords);
+        Assert.Equal(2, result.TotalPages);
+        Assert.Equal(2, result.Page);
+    }
+
+    [Fact]
     public async Task Get_WhenCompanyExists_ReturnsCompany()
     {
         // Arrange

@@ -138,12 +138,6 @@ public class CompaniesControllerTests
             await SeedDataAsync(db);
         }
 
-        var searchDto = new CompanySearchDto
-        {
-            Page = 1,
-            Records = 1
-        };
-
         // Act
         var response = await client.GetAsync("/api/companies?page=1&records=1");
 
@@ -169,12 +163,6 @@ public class CompaniesControllerTests
             await SeedDataAsync(db);
         }
 
-        var searchDto = new CompanySearchDto
-        {
-            Page = 2,
-            Records = 1
-        };
-
         // Act
         var response = await client.GetAsync("/api/companies?page=2&records=1");
 
@@ -186,6 +174,29 @@ public class CompaniesControllerTests
         Assert.Equal(2, result.TotalRecords);
         Assert.Equal(2, result.TotalPages);
         Assert.Equal(2, result.Page);
+    }
+
+    [Fact]
+    public async Task GetAll_WhenNameFilterIsProvided_ReturnsMatchingCompanies()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/companies?name=Microsoft");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Microsoft", result.Items[0].Name);
     }
 
     [Fact]

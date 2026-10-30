@@ -200,6 +200,27 @@ public class CompaniesControllerTests
     }
 
     [Fact]
+    public async Task GetAll_WhenFilterHasNoMatches_ReturnsEmptyList()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/companies?name=Xbox");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Empty(result.Items);
+    }
+
+    [Fact]
     public async Task Get_WhenCompanyExists_ReturnsCompany()
     {
         // Arrange

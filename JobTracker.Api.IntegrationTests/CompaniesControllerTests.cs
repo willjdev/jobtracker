@@ -165,15 +165,22 @@ public class CompaniesControllerTests
 
         // Act
         var response = await client.GetAsync("/api/companies?page=2&records=1");
+        var responsePageItem1 = await client.GetAsync("/api/companies?page=1&records=1");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, responsePageItem1.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+        var resultPageItem1 = await responsePageItem1.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>(); 
         Assert.NotNull(result);
+        Assert.NotNull(resultPageItem1);
         Assert.Single(result.Items);
+        Assert.Single(resultPageItem1.Items);
         Assert.Equal(2, result.TotalRecords);
         Assert.Equal(2, result.TotalPages);
         Assert.Equal(2, result.Page);
+        Assert.Equal("Santa Monica", result.Items[0].Name);
+        Assert.Equal("Microsoft", resultPageItem1.Items[0].Name);
     }
 
     [Fact]
@@ -208,6 +215,7 @@ public class CompaniesControllerTests
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
         }
 
         // Act
@@ -218,6 +226,7 @@ public class CompaniesControllerTests
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
         Assert.NotNull(result);
         Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalRecords);
     }
 
     [Fact]
@@ -230,17 +239,47 @@ public class CompaniesControllerTests
         {
             var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
             await SeedDataAsync(db);
+
+            var companies = new List<Company>
+            {
+                new()
+                {
+                    Id = 4,
+                    Name = "Microsoft Games",
+                    Description = "Big Company",
+                    Website = "www.microsoft.com",
+                    Location = "Holand",
+                    UserId = "test-user-id",
+                    CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
+                },
+                new()
+                {
+                    Id = 5,
+                    Name = "Microsoft Colombia",
+                    Description = "Game Company",
+                    Website = "www.santamonica.com",
+                    Location = "Remote",
+                    UserId = "test-user-id2",
+                    CreatedAt = new DateTime(2026, 7, 20, 7, 0, 0),
+                }
+            };
+
+            await db.Companies.AddRangeAsync(companies);
+            await db.SaveChangesAsync();
         }
 
         // Act
-        var response = await client.GetAsync("/api/companies");
+        var response = await client.GetAsync("/api/companies?name=Microsoft");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
         Assert.NotNull(result);
         Assert.Equal(2, result.Items.Count);
-        Assert.DoesNotContain(result.Items, c => c.Id == 3);
+        Assert.Equal(2, result.TotalRecords);
+        Assert.Equal("Microsoft", result.Items[0].Name);
+        Assert.Equal("Microsoft Games", result.Items[1].Name);
+        Assert.DoesNotContain(result.Items, c => c.Id == 3 || c.Id == 5);
     }
 
     [Fact]

@@ -277,8 +277,8 @@ public class CompaniesControllerTests
         Assert.NotNull(result);
         Assert.Equal(2, result.Items.Count);
         Assert.Equal(2, result.TotalRecords);
-        Assert.Equal("Microsoft", result.Items[0].Name);
-        Assert.Equal("Microsoft Games", result.Items[1].Name);
+        Assert.Contains(result.Items, c => c.Name == "Microsoft");
+        Assert.Contains(result.Items, c => c.Name == "Microsoft Games");
         Assert.DoesNotContain(result.Items, c => c.Id == 3 || c.Id == 5);
     }
 

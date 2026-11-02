@@ -283,7 +283,7 @@ public class CompaniesControllerTests
     }
 
     [Fact]
-    public async Task GetAll_WhenPaginatioValuesAreInvalid_HanldeThemCorrectly()
+    public async Task GetAll_WhenPaginationValuesExceedLimits_UsesAllowedValues()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
@@ -296,13 +296,18 @@ public class CompaniesControllerTests
 
         // Act
         var response = await client.GetAsync("/api/companies?page=0&records=200");
+        var responseRecordsMinimumValue = await client.GetAsync("/api/companies?records=0");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, responseRecordsMinimumValue.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
+        var resultRecordsMinimumValue = await responseRecordsMinimumValue.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
         Assert.NotNull(result);
+        Assert.NotNull(resultRecordsMinimumValue);
         Assert.Equal(1, result.Page);
         Assert.Equal(50, result.Records);
+        Assert.Equal(4, resultRecordsMinimumValue.Records);
     }
 
     [Fact]
@@ -324,7 +329,8 @@ public class CompaniesControllerTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<CompanyResponseDto>>();
         Assert.NotNull(result);
-        Assert.Equal("Santa Monica", result.Items[0].Name);
+        var names = result.Items.Select(c => c.Name).ToList();
+        Assert.Equal(new[] {"Santa Monica", "Microsoft"}, names);
     }
 
     [Fact]

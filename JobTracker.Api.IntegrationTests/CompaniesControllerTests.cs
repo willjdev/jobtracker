@@ -608,7 +608,7 @@ public class CompaniesControllerTests
     }
 
     [Fact]
-    public async Task Delete_WhenCompanyDoesNotExit_ReturnsNotFound()
+    public async Task Delete_WhenCompanyDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();

@@ -126,4 +126,22 @@ public class JobApplicationControllerTests
         Assert.DoesNotContain(result.Items, j => j.Position == "Game Developer");
     }
 
+    [Fact]
+    public async Task GetJobApplication_WhenNoJobApplicationExist_ReturnsEmptyList()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/api/applications");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Empty(result.Items);
+
+    }
+
 }

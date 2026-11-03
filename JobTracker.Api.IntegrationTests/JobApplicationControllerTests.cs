@@ -1,5 +1,8 @@
 using System.Net;
+using System.Net.Http.Json;
 using JobTracker.Api.Data;
+using JobTracker.Api.Dtos.Common;
+using JobTracker.Api.Dtos.JobApplicationDto;
 using JobTracker.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -74,7 +77,7 @@ public class JobApplicationControllerTests
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
                 JobUrl = "https//www.job.com",
                 CompanyId = 3,
-                UserId = userId,
+                UserId = userId2,
             },
         };
 
@@ -90,6 +93,20 @@ public class JobApplicationControllerTests
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
         using var client = factory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/api/applications");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetJobApplication_WhenJobApplicationsExist_ReturnsJobApplications()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
@@ -101,6 +118,12 @@ public class JobApplicationControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Contains(result.Items, j => j.Position == ".NET Developer");
+        Assert.Contains(result.Items, j => j.Position == "Game Tester");
+        Assert.DoesNotContain(result.Items, j => j.Position == "Game Developer");
     }
 
 }

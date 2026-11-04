@@ -158,4 +158,28 @@ public class JobApplicationControllerTests
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task GetJobApplication_WhenPageIsSpecified_ReturnsLimitedItems()
+    {
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/applications?page=1&records=1");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.TotalRecords);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(2, result.TotalPages);
+    }
+
 }

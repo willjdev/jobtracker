@@ -141,7 +141,21 @@ public class JobApplicationControllerTests
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
         Assert.NotNull(result);
         Assert.Empty(result.Items);
+    }
 
+    [Fact]
+    public async Task GetJobApplication_WhenUserDoesNotHasAuthorization_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Unauthenticated", "false");
+
+        // Act
+        var response = await client.GetAsync("/api/applications");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
 }

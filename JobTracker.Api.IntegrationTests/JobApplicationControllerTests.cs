@@ -167,19 +167,69 @@ public class JobApplicationControllerTests
         {
             var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
             await SeedDataAsync(db);
+            var applications = new List<JobApplication>
+            {
+                new()
+                {
+                    Id = 4,
+                    Position = "Senior Game Developer",
+                    JobUrl = "https://www.job.com",
+                    AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
+                    CompanyId = 3,
+                    UserId = "test-user-id2",
+                },
+                new()
+                {
+                    Id = 5,
+                    Position = "Senior .NET Developer",
+                    JobUrl = "https://www.job.com",
+                    AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
+                    CompanyId = 1,
+                    UserId = "test-user-id",
+                },
+                new()
+                {
+                    Id = 6,
+                    Position = "Senior Game Tester",
+                    JobUrl = "https://www.job.com",
+                    AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
+                    CompanyId = 2,
+                    UserId = "test-user-id",
+                },
+                new()
+                {
+                    Id = 7,
+                    Position = "Junior .NET Developer",
+                    JobUrl = "https://www.job.com",
+                    AppliedAt = new DateTime(2026, 8, 17, 6, 20, 0),
+                    CompanyId = 1,
+                    UserId = "test-user-id",
+                }
+            };
+
+            await db.Applications.AddRangeAsync(applications);
+            await db.SaveChangesAsync();
         }
 
         // Act
-        var response = await client.GetAsync("/api/applications?page=1&records=1");
+        var response = await client.GetAsync("/api/applications?page=1&records=2");
+        var responseSecondPage = await client.GetAsync("/api/applications?page=2&records=2");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
+        var resultSecondPage = await responseSecondPage.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
         Assert.NotNull(result);
-        Assert.Single(result.Items);
-        Assert.Equal(2, result.TotalRecords);
-        Assert.Equal(1, result.Page);
-        Assert.Equal(2, result.TotalPages);
+        Assert.NotNull(resultSecondPage);
+        Assert.Equal(5, result.TotalRecords);
+        Assert.Equal(5, resultSecondPage.TotalRecords);
+        Assert.Equal(3, result.TotalPages);
+        Assert.Equal(3, resultSecondPage.TotalPages);
+        var applicationsFirstResponse = result.Items.Select(c => c.Position).ToList();
+        var applicationsSecondResponse = resultSecondPage.Items.Select(c => c.Position).ToList();
+        Assert.Equal(new[] {".NET Developer", "Game Tester"}, applicationsFirstResponse);
+        Assert.Equal(new[] {"Senior .NET Developer", "Senior Game Tester"}, applicationsSecondResponse);
+        
     }
 
 }

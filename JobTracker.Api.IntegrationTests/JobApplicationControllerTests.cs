@@ -375,7 +375,7 @@ public class JobApplicationControllerTests
     }
 
     [Fact]
-    public async Task Create_WhenDataIsNotValid_Returns()
+    public async Task Create_WhenDataIsNotValid_ReturnsBadRequest()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
@@ -402,6 +402,38 @@ public class JobApplicationControllerTests
         var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
         var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Position == application.Position);
         Assert.Null(applicationInDb);
+    }
+
+    [Fact]
+    public async Task Update_WhenDataIsValid_ReturnsNoContent()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var application = new JobApplicationUpdateDto
+        {
+            Position = "Game Programer",
+            Status = "Meeting",
+            JobUrl = "https://www.job.com"
+        };
+        var applicationId = 2;
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/applications/{applicationId}", application);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Id == applicationId);
+        Assert.NotNull(applicationInDb);
+        Assert.Equal(application.Position, applicationInDb.Position);
     }
 
 }

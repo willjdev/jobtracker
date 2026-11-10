@@ -321,7 +321,6 @@ public class JobApplicationControllerTests
             var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
             await SeedDataAsync(dbData);
         }
-
         
         var application = new JobApplicationCreateDto
         {
@@ -343,6 +342,36 @@ public class JobApplicationControllerTests
         var result = await response.Content.ReadFromJsonAsync<JobApplicationResponseDto>();
         Assert.NotNull(result);
         Assert.Equal("Santa Monica", result.Company);
+    }
+
+    [Fact]
+    public async Task Create_WhenCompanyBelongsToAnotherUser_ReturnsBadRequest()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var application = new JobApplicationCreateDto
+        {
+            Position = "Game Programmer",
+            JobUrl = "https://www.job.com",
+            CompanyId = 3,
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/applications", application);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Position == application.Position);
+        Assert.Null(applicationInDb);
     }
 
 }

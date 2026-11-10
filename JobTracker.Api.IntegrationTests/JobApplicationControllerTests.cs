@@ -269,4 +269,28 @@ public class JobApplicationControllerTests
         Assert.Equal(2, result.Items.Count);
     }
 
+    [Fact]
+    public async Task Get_WhenJobApplicationExist_ReturnsJobApplication()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var applicationId = 2;
+
+        // Act
+        var response = await client.GetAsync($"/api/applications/{applicationId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<JobApplicationResponseDto>();
+        Assert.NotNull(result);
+        Assert.Equal("Game Tester", result.Position);
+    }
+
 }

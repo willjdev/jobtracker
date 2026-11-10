@@ -374,4 +374,34 @@ public class JobApplicationControllerTests
         Assert.Null(applicationInDb);
     }
 
+    [Fact]
+    public async Task Create_WhenDataIsNotValid_Returns()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var application = new JobApplicationCreateDto
+        {
+            Position = "Game Programmer",
+            JobUrl = "ht//www.job.com",
+            CompanyId = 1,
+        };
+
+        // Act
+        var response =  await client.PostAsJsonAsync("/api/applications", application);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Position == application.Position);
+        Assert.Null(applicationInDb);
+    }
+
 }

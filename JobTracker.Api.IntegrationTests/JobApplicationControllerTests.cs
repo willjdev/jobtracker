@@ -4,6 +4,7 @@ using JobTracker.Api.Data;
 using JobTracker.Api.Dtos.Common;
 using JobTracker.Api.Dtos.JobApplicationDto;
 using JobTracker.Api.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
@@ -307,6 +308,41 @@ public class JobApplicationControllerTests
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_WhenDataIsValid_CreatesJobApplication()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scopeDb = factory.Services.CreateScope())
+        {
+            var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(dbData);
+        }
+
+        
+        var application = new JobApplicationCreateDto
+        {
+            Position = "Game Programmer",
+            JobUrl = "https://www.job.com",
+            CompanyId = 2,
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/applications", application);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var applicationInDb = await db.Applications.SingleOrDefaultAsync(j => j.Position == "Game Programmer");
+        Assert.NotNull(applicationInDb);
+        Assert.Equal(4, applicationInDb.Id);
+        var result = await response.Content.ReadFromJsonAsync<JobApplicationResponseDto>();
+        Assert.NotNull(result);
+        Assert.Equal("Santa Monica", result.Company);
     }
 
 }

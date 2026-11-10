@@ -293,4 +293,20 @@ public class JobApplicationControllerTests
         Assert.Equal("Game Tester", result.Position);
     }
 
+    [Fact]
+    public async Task Get_WhenJobApplicationDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var applicationId = 1;
+
+        // Act
+        var response =  await client.GetAsync($"/api/applications/{applicationId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
 }

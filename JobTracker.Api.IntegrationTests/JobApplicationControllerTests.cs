@@ -228,8 +228,45 @@ public class JobApplicationControllerTests
         var applicationsFirstResponse = result.Items.Select(c => c.Position).ToList();
         var applicationsSecondResponse = resultSecondPage.Items.Select(c => c.Position).ToList();
         Assert.Equal(new[] {".NET Developer", "Game Tester"}, applicationsFirstResponse);
-        Assert.Equal(new[] {"Senior .NET Developer", "Senior Game Tester"}, applicationsSecondResponse);
-        
+        Assert.Equal(new[] {"Senior .NET Developer", "Senior Game Tester"}, applicationsSecondResponse);   
+    }
+
+    [Fact]
+    public async Task GetJobApplication_WhenFilteringByPositionWithDescendingOrder_ReturnsExpectedItems()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+
+            var job = new JobApplication
+            {
+                Id = 4,
+                Position = "Game Programmer",
+                Status = "Meeting",
+                AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
+                JobUrl = "https//www.job.com",
+                CompanyId = 2,
+                UserId = "test-user-id"
+            };
+
+            await db.Applications.AddAsync(job);
+            await db.SaveChangesAsync();
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/applications?position=Game");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
+        Assert.NotNull(result);
+        var applications = result.Items.Select(j => j.Position).ToList();
+        Assert.Equal(new[] {"Game Tester", "Game Programmer"}, applications);
+        Assert.Equal(2, result.Items.Count);
     }
 
 }

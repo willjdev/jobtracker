@@ -493,4 +493,29 @@ public class JobApplicationControllerTests
         Assert.Null(applicationInDb);
     }
 
+    [Fact]
+    public async Task Delete_WhenApplicationBelognsToAnotherUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var applicationId = 3;
+
+        // Act
+        var response = await client.DeleteAsync($"/api/applications/{applicationId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Id == applicationId);
+        Assert.NotNull(applicationInDb);
+        Assert.Equal("Game Developer", applicationInDb.Position);
+    }
 }

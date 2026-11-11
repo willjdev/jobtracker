@@ -418,7 +418,7 @@ public class JobApplicationControllerTests
 
         var application = new JobApplicationUpdateDto
         {
-            Position = "Game Programer",
+            Position = "Game Programmer",
             Status = "Meeting",
             JobUrl = "https://www.job.com"
         };
@@ -434,6 +434,38 @@ public class JobApplicationControllerTests
         var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Id == applicationId);
         Assert.NotNull(applicationInDb);
         Assert.Equal(application.Position, applicationInDb.Position);
+    }
+
+    [Fact]
+    public async Task Update_WhenApplicationBelongsToAnotherUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var application = new JobApplicationUpdateDto
+        {
+            Position = "Game Programmer",
+            Status = "Meeting",
+            JobUrl = "https://www.job.com"
+        };
+        var applicationId = 3;
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/applications/{applicationId}", application);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Id == applicationId);
+        Assert.NotNull(applicationInDb);
+        Assert.Equal("Game Developer", applicationInDb.Position);
     }
 
 }

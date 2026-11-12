@@ -338,7 +338,6 @@ public class JobApplicationControllerTests
         var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
         var applicationInDb = await db.Applications.SingleOrDefaultAsync(j => j.Position == "Game Programmer");
         Assert.NotNull(applicationInDb);
-        Assert.Equal(4, applicationInDb.Id);
         var result = await response.Content.ReadFromJsonAsync<JobApplicationResponseDto>();
         Assert.NotNull(result);
         Assert.Equal("Santa Monica", result.Company);

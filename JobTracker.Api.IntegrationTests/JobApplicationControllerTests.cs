@@ -66,7 +66,7 @@ public class JobApplicationControllerTests
                Id = 2,
                Position = "Game Tester",
                AppliedAt = new DateTime(2026, 8, 18, 0, 0, 0),
-               JobUrl = "https//www.job.com",
+               JobUrl = "https://www.job.com",
                CompanyId = 2,
                UserId = userId,
             },
@@ -76,7 +76,7 @@ public class JobApplicationControllerTests
                 Position = "Game Developer",
                 Status = "Meeting",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
-                JobUrl = "https//www.job.com",
+                JobUrl = "https://www.job.com",
                 CompanyId = 3,
                 UserId = userId2,
             },
@@ -249,7 +249,7 @@ public class JobApplicationControllerTests
                 Position = "Game Programmer",
                 Status = "Meeting",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
-                JobUrl = "https//www.job.com",
+                JobUrl = "https://www.job.com",
                 CompanyId = 2,
                 UserId = "test-user-id"
             };
@@ -259,7 +259,7 @@ public class JobApplicationControllerTests
         }
 
         // Act
-        var response = await client.GetAsync("/api/applications?position=Game");
+        var response = await client.GetAsync("/api/applications?position=Game&sortbytype=desc");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

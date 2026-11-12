@@ -311,6 +311,27 @@ public class JobApplicationControllerTests
     }
 
     [Fact]
+    public async Task Gte_WhenApplicationBelongsToAnotherUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var applicationId = 3;
+
+        // Act
+        var response = await client.GetAsync($"/api/applications/{applicationId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Create_WhenDataIsValid_CreatesJobApplication()
     {
         // Arrange

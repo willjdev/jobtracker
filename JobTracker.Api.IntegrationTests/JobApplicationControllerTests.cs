@@ -342,6 +342,8 @@ public class JobApplicationControllerTests
         var result = await response.Content.ReadFromJsonAsync<JobApplicationResponseDto>();
         Assert.NotNull(result);
         Assert.Equal("Santa Monica", result.Company);
+        Assert.Equal("test-user-id", applicationInDb.UserId);
+        Assert.Equal(2, result.CompanyId);
     }
 
     [Fact]

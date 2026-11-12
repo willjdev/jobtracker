@@ -431,7 +431,9 @@ public class JobApplicationControllerTests
         using var scopeDb = factory.Services.CreateScope();
         var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
         var applicationInDb = await dbData.Applications.SingleOrDefaultAsync(j => j.Position == application.Position);
+        var applicationInDbCount = await dbData.Applications.CountAsync();
         Assert.Null(applicationInDb);
+        Assert.Equal(3, applicationInDbCount);
     }
 
     [Fact]

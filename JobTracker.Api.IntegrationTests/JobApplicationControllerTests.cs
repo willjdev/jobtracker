@@ -271,6 +271,44 @@ public class JobApplicationControllerTests
     }
 
     [Fact]
+    public async Task GetJobApplication_WhenFilteringByCompanyId_ReturnsExpectedItems()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+            
+            var job = new JobApplication
+            {
+                Id = 4,
+                Position = "Game Programmer",
+                Status = "Meeting",
+                AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
+                JobUrl = "https://www.job.com",
+                CompanyId = 1,
+                UserId = "test-user-id"
+            };
+
+            await db.Applications.AddAsync(job);
+            await db.SaveChangesAsync();
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/applications?companyid=1");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<JobApplicationResponseDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(2, result.TotalRecords);
+        var applications = result.Items.Select(j => j.Position).ToList();
+        Assert.Equal(new[] {".NET Developer", "Game Programmer"}, applications);
+    }
+
+    [Fact]
     public async Task Get_WhenJobApplicationExist_ReturnsJobApplication()
     {
         // Arrange
@@ -311,7 +349,7 @@ public class JobApplicationControllerTests
     }
 
     [Fact]
-    public async Task Gte_WhenApplicationBelongsToAnotherUser_ReturnsNotFound()
+    public async Task Get_WhenApplicationBelongsToAnotherUser_ReturnsNotFound()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();

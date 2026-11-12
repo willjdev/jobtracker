@@ -556,7 +556,7 @@ public class JobApplicationControllerTests
     }
 
     [Fact]
-    public async Task Delete_WhenApplicationBelognsToAnotherUser_ReturnsNotFound()
+    public async Task Delete_WhenApplicationBelongsToAnotherUser_ReturnsNotFound()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();

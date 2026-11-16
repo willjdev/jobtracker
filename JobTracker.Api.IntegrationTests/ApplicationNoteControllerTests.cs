@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using JobTracker.Api.Data;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
@@ -222,5 +223,33 @@ public class ApplicationNoteControllerTests
         Assert.Equal(HttpStatusCode.NotFound, respone.StatusCode);
     }
 
+    [Fact]
+    public async Task Create_WhenDataIsValid_ReturnsCreated()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
 
+        var note = new ApplicationNoteCreateDto
+        {
+            Content = "This is a great company!!!!",
+            JobApplicationId = 2
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/application-notes", note);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Content == "This is a great company!!!!");
+        Assert.NotNull(noteInDb);
+        Assert.Equal("test-user-id", noteInDb.UserId);
+    }
 }

@@ -185,5 +185,21 @@ public class ApplicationNoteControllerTests
         Assert.Equal("I like this company", result.Content);
     }
 
+    [Fact]
+    public async Task Get_WhenApplicationNoteDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        
+        var noteId = 1;
+
+        // Act
+        var response = await client.GetAsync($"/api/application-notes/{noteId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
 
 }

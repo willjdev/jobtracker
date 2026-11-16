@@ -310,4 +310,36 @@ public class ApplicationNoteControllerTests
         var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Content == note.Content);
         Assert.Null(noteInDb);
     }
+
+    [Fact]
+    public async Task Update_WhenDataIsValid_ReturnsNoContent()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var note = new ApplicationNoteUpdateDto
+        {
+            Content = "This is a great company!!!!",
+        };
+        var noteId = 1;
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/application-notes/{noteId}", note);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Id == noteId);
+        Assert.NotNull(noteInDb);
+        Assert.Equal(note.Content, noteInDb.Content);
+    }
+
+   
 }

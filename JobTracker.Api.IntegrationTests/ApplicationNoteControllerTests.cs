@@ -161,5 +161,29 @@ public class ApplicationNoteControllerTests
         Assert.DoesNotContain(result, n => n.Content == "Developer interview");
     }
 
+    [Fact]
+    public async Task Get_WhenApplicationNoteExist_ReturnsApplicationNote()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var noteId = 1;
+
+        // Act
+        var response = await client.GetAsync($"/api/application-notes/{noteId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<ApplicationNoteResponseDto>();
+        Assert.NotNull(result);
+        Assert.Equal("I like this company", result.Content);
+    }
+
 
 }

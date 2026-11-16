@@ -1,6 +1,10 @@
 
+using System.Net;
+using System.Net.Http.Json;
 using JobTracker.Api.Data;
+using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
 
@@ -10,6 +14,40 @@ public class ApplicationNoteControllerTests
     {
         var userId = "test-user-id";
         var userId2 = "test-user-id2";
+
+        var companies = new List<Company>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Microsoft",
+                Description = "Big Company",
+                Website = "www.microsoft.com",
+                Location = "Holand",
+                UserId = userId,
+                CreatedAt = new DateTime(2026, 7, 10, 6, 10, 0),
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Santa Monica",
+                Description = "Game Company",
+                Website = "www.santamonica.com",
+                Location = "Remote",
+                UserId = userId,
+                CreatedAt = new DateTime(2026, 7, 20, 7, 0, 0),
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Naughty Dog",
+                Description = "Game Company",
+                Website = "www.naughtydog.com",
+                Location = "Remote",
+                UserId = userId2,
+                CreatedAt = new DateTime(2026, 8, 28, 8, 0, 0),
+            }
+        };
 
         var jobApplications = new List<JobApplication>
         {
@@ -27,19 +65,19 @@ public class ApplicationNoteControllerTests
                 Id = 2,
                 Position = "Game Developer",
                 AppliedAt = new DateTime(2026, 8, 18, 0, 0, 0),
-                JobUrl = "https//www.job.com",
+                JobUrl = "https://www.job.com",
                 UserId = userId,
                 CompanyId = 2
             },
             new()
             {
                 Id = 3,
-                Position = ".NET Developer",
+                Position = "Senior Game Developer",
                 Status = "Meeting",
                 AppliedAt = new DateTime(2026, 8, 20, 6, 40, 0),
-                JobUrl = "https//www.job.com",
+                JobUrl = "https://www.job.com",
                 UserId = userId2,
-                CompanyId = 1
+                CompanyId = 3
             }
         };
 
@@ -80,15 +118,48 @@ public class ApplicationNoteControllerTests
             new()
             {
                 Id = 5,
-                Content = "Sent the email to the recruiter",
+                Content = "Developer interview",
                 CreatedAt = new DateTime(2026, 9, 22, 9, 20 ,0),
                 UserId = userId2,
                 JobApplicationId = 3
             }
         };
 
+        await context.Companies.AddRangeAsync(companies);
         await context.Applications.AddRangeAsync(jobApplications);
         await context.Notes.AddRangeAsync(notes);
         await context.SaveChangesAsync();
     }
+
+    [Fact]
+    public async Task GetAll_WhenNotesExist_ReturnList()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        // Act
+        var response = await client.GetAsync("/api/application-notes");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<List<ApplicationNoteResponseDto>>();
+        Assert.NotNull(result);
+        var notes = result.Select(n => n.Content).ToList();
+        Assert.Equal(new[] 
+        {
+            "Sent the email to the recruiter",
+            "Game company, sent resume",
+            "Sent the email, let's wait for response",
+            "I like this company",
+        }, notes);
+        Assert.DoesNotContain(result, n => n.Content == "Developer interview");
+    }
+
+
 }

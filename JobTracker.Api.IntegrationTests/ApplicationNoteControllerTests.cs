@@ -252,4 +252,33 @@ public class ApplicationNoteControllerTests
         Assert.NotNull(noteInDb);
         Assert.Equal("test-user-id", noteInDb.UserId);
     }
+
+    [Fact]
+    public async Task Create_WhenDataIsInvalid_ReturnsBadRequest()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var note = new ApplicationNoteCreateDto
+        {
+            Content = "This is a great company!!!!",
+            JobApplicationId = 8
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/application-notes/", note);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Content ==  note.Content);
+        Assert.Null(noteInDb);
+    }
 }

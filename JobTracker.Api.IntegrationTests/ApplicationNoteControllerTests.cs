@@ -201,5 +201,26 @@ public class ApplicationNoteControllerTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Get_WhenApplicationNoteBelongsToAnoterUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var noteId = 5;
+
+        // Act
+        var respone = await client.GetAsync($"/api/application-notes/{noteId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, respone.StatusCode);
+    }
+
 
 }

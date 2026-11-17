@@ -5,6 +5,7 @@ using JobTracker.Api.Data;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
@@ -369,5 +370,35 @@ public class ApplicationNoteControllerTests
         var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Id == noteId);
         Assert.NotNull(noteInDb);
         Assert.Equal("I like this company", noteInDb.Content);
+    }
+
+    [Fact]
+    public async Task Update_WhenApplicationNoteBelongsToAnotherUser_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var note = new ApplicationNoteUpdateDto
+        {
+            Content = "This is a great company!!!!",
+        };
+        var noteId = 5;
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/application-notes/{noteId}", note);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Id ==  noteId);
+        Assert.NotNull(noteInDb);
+        Assert.NotEqual(note.Content, noteInDb.Content);
     }
 }

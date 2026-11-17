@@ -428,4 +428,29 @@ public class ApplicationNoteControllerTests
         Assert.Null(noteInDb);
         Assert.Equal(4, notesCount);
     }
+
+    [Fact]
+    public async Task Delete_WhenDataIsInvalid_ReturnsNotFound()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var noteId = 9;
+
+        // Act
+        var response = await client.DeleteAsync($"/api/application-notes/{noteId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var notesCount = await dbData.Notes.CountAsync();
+        Assert.Equal(5, notesCount);
+    }
 }

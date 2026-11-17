@@ -401,4 +401,31 @@ public class ApplicationNoteControllerTests
         Assert.NotNull(noteInDb);
         Assert.NotEqual(note.Content, noteInDb.Content);
     }
+
+    [Fact]
+    public async Task Delete_WhenDataIsValid_ReturnsNoContent()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+            await SeedDataAsync(db);
+        }
+
+        var noteId = 1;
+
+        // Act
+        var response = await client.DeleteAsync($"/api/application-notes/{noteId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Id == noteId);
+        var notesCount = await dbData.Notes.CountAsync();
+        Assert.Null(noteInDb);
+        Assert.Equal(4, notesCount);
+    }
 }

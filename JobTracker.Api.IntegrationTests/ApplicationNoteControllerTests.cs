@@ -251,6 +251,8 @@ public class ApplicationNoteControllerTests
         var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Content == "This is a great company!!!!");
         Assert.NotNull(noteInDb);
         Assert.Equal("test-user-id", noteInDb.UserId);
+        Assert.Equal(2, noteInDb.JobApplicationId);
+        Assert.Equal(note.Content, noteInDb.Content);
     }
 
     [Fact]

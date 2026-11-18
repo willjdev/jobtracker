@@ -163,6 +163,22 @@ public class ApplicationNoteControllerTests
     }
 
     [Fact]
+    public async Task GetAll_WhenUserIsNotAuthenticated_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        client.DefaultRequestHeaders.Add("X-Test-Unauthenticated", "false");
+
+        // Act
+        var response = await client.GetAsync("/api/application-notes");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Get_WhenApplicationNoteExist_ReturnsApplicationNote()
     {
         // Arrange
@@ -400,7 +416,10 @@ public class ApplicationNoteControllerTests
         var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
         var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Id ==  noteId);
         Assert.NotNull(noteInDb);
-        Assert.NotEqual(note.Content, noteInDb.Content);
+        Assert.Equal("Developer interview", noteInDb.Content);
+        Assert.Equal("test-user-id2", noteInDb.UserId);
+
+        
     }
 
     [Fact]

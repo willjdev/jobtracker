@@ -330,6 +330,32 @@ public class ApplicationNoteControllerTests
     }
 
     [Fact]
+    public async Task Create_WhenUserIsNotAuthenticated_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var factory = new JobTrackerWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        client.DefaultRequestHeaders.Add("X-Test-Unauthenticated", "false");
+
+        var note = new ApplicationNoteCreateDto
+        {
+            Content = "This is a great company!!!!",
+            JobApplicationId = 2
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/application-notes", note);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        using var scopeDb = factory.Services.CreateScope();
+        var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
+        var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Content == note.Content);
+        Assert.Null(noteInDb);
+    }
+
+    [Fact]
     public async Task Update_WhenDataIsValid_ReturnsNoContent()
     {
         // Arrange

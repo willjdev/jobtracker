@@ -259,7 +259,7 @@ public class JobApplicationControllerTests
         }
 
         // Act
-        var response = await client.GetAsync("/api/applications?position=Game&sortbytype=desc");
+        var response = await client.GetAsync("/api/applications?fieldname=position&position=Game&sortbytype=desc");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

@@ -5,7 +5,6 @@ using JobTracker.Api.Data;
 using JobTracker.Api.Dtos.ApplicationNoteDto;
 using JobTracker.Api.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobTracker.Api.IntegrationTests.Controllers;
@@ -343,7 +342,7 @@ public class ApplicationNoteControllerTests
     }
 
     [Fact]
-    public async Task Update_WhenDataIsInvalid_ReturnsNotFound()
+    public async Task Update_WhenDataIsInvalid_ReturnsBadRequest()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();
@@ -361,10 +360,10 @@ public class ApplicationNoteControllerTests
         var noteId = 1;
 
         // Act
-        var response = await client.PutAsJsonAsync($"/api/application-note/{noteId}", note);
+        var response = await client.PutAsJsonAsync($"/api/application-notes/{noteId}", note);
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         using var scopeDb = factory.Services.CreateScope();
         var dbData = scopeDb.ServiceProvider.GetRequiredService<ApiDbContext>();
         var noteInDb = await dbData.Notes.SingleOrDefaultAsync(n => n.Id == noteId);

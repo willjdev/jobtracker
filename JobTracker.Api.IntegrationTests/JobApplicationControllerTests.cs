@@ -401,6 +401,7 @@ public class JobApplicationControllerTests
         Assert.NotNull(result);
         Assert.Equal("Santa Monica", result.Company);
         Assert.Equal("test-user-id", applicationInDb.UserId);
+        Assert.Equal(2, applicationInDb.CompanyId);
         Assert.Equal(2, result.CompanyId);
     }
 

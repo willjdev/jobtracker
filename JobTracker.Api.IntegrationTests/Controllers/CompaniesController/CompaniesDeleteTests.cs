@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using JobTracker.Api.IntegrationTests.TestData;
 
-namespace JobTracker.Api.IntegrationTests.Controllers;
+namespace JobTracker.Api.IntegrationTests.Controllers.Companies;
 
 public class CompaniesControllerDeleteTests
 {

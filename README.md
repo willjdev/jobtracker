@@ -1,160 +1,110 @@
 # JobTracker API
 
-[![.NET Core CI](https://github.com/willjdev/jobtracker/actions/workflows/ci.yml/badge.svg)](https://github.com/willjdev/jobtracker/actions/workflows/ci.yml)
+A RESTful API built with **ASP.NET Core 10** to organize and track job applications, the companies behind them, and notes recorded during the application process.
 
-JobTracker API is a RESTful Web API built with ASP.NET Core for managing companies, job applications, and application notes.
-
-This project was created as a backend portfolio project to practice real-world API development with C#, Entity Framework Core, SQL Server, service-based architecture, DTOs, dynamic filtering, sorting, pagination, automated tests, and continuous integration with GitHub Actions.
+JobTracker is a backend portfolio project focused on API design, authentication, user-specific data access, relational persistence, automated testing, and maintainable application code.
 
 ## Features
 
-* Manage companies.
-* Manage job applications.
-* Add notes to job applications.
-* Filter companies by name, location, creation date, and related job application position.
-* Filter job applications by position, status, application date, and company.
-* Sort companies and job applications by selected fields.
-* Paginate list responses.
-* Return pagination metadata such as current page, records per page, total records, and total pages.
-* Use DTOs to separate API contracts from database entities.
-* Use services and interfaces to separate business logic from controllers.
-* Use Entity Framework Core with SQL Server for data persistence.
-* Use SQLite in-memory database for service tests.
-* Run automated tests with xUnit.
-* Run build and tests automatically with GitHub Actions.
+- **Companies:** create, retrieve, update, and delete companies.
+- **Job applications:** track positions, application dates, statuses, links, and associated companies.
+- **Application notes:** keep notes linked to individual job applications.
+- **Accounts and access control:** register, sign in, and authenticate with JWT bearer tokens using ASP.NET Core Identity.
+- **User-specific data:** restrict access to companies, applications, and notes according to the authenticated user.
+- **Query capabilities:** filtering, sorting, and pagination for company and job-application listings.
+- **Validation and API responses:** request DTOs, input validation, HTTP status codes, and pagination metadata.
+- **Automated testing and CI:** service-level tests, HTTP integration tests, and a GitHub Actions build-and-test workflow.
 
-## Tech Stack
+## Tech stack
 
-* C#
-* ASP.NET Core Web API
-* Entity Framework Core
-* SQL Server
-* SQLite in-memory for tests
-* xUnit
-* GitHub Actions
+| Area | Technology |
+| --- | --- |
+| Language and framework | C#, .NET 10, ASP.NET Core Web API |
+| Persistence | Entity Framework Core, SQL Server |
+| Identity and authentication | ASP.NET Core Identity, JWT bearer authentication |
+| API contracts and queries | DTOs, LINQ, filtering, sorting, pagination |
+| Automated tests | xUnit, SQLite in-memory, `WebApplicationFactory`, `TestServer`, `HttpClient` |
+| Continuous integration | GitHub Actions |
+| API specification | ASP.NET Core OpenAPI in Development |
 
-## Project Structure
+## Architecture
+
+The API uses controllers, services, and Entity Framework Core, with interfaces registered through dependency injection.
 
 ```text
-jobtracker
-├── .github
-│   └── workflows
+HTTP request
+    |
+    v
+ASP.NET Core middleware (authentication / authorization)
+    |
+    v
+Controller -> Service interface / implementation -> ApiDbContext -> SQL Server
+    |
+    v
+HTTP response (DTO / status code)
+```
+
+**Core entities and relationships:**
+
+- `ApplicationUser`: the account associated with user-owned records.
+- `Company`: a company tracked by a user; can have multiple job applications.
+- `JobApplication`: a position/application associated with a company and user; can have multiple notes.
+- `ApplicationNote`: a note associated with a job application and user.
+
+The API validates ownership of resources, including when creating applications for companies or notes for job applications.
+
+## Repository structure
+
+```text
+jobtracker/
+├── .github/
+│   └── workflows/
 │       └── ci.yml
-│
-├── JobTracker.api
-│   ├── Controllers
-│   ├── Data
-│   ├── DTOs
-│   ├── Migrations
-│   ├── Models
-│   ├── Services
-│   ├── Program.cs
-│   └── appsettings.json
-│
-├── JobTracker.Api.Tests
-│   ├── Helpers
-│   └── Services
-│
+├── JobTracker.api/
+│   ├── Controllers/
+│   ├── Data/
+│   ├── Dtos/                  # Request/response DTOs (casing may vary)
+│   ├── Migrations/
+│   ├── Models/
+│   ├── Services/
+│   └── Program.cs
+├── JobTracker.Api.Tests/
+│   ├── Helpers/
+│   └── Services/
+├── JobTracker.Api.IntegrationTests/
+│   ├── Authentication/
+│   │   └── TestAuthHandler.cs
+│   ├── Controllers/
+│   │   ├── CompaniesController/
+│   │   ├── JobApplicationController/
+│   │   └── ApplicationNoteController/
+│   ├── TestData/
+│   └── JobTrackerWebApplicationFactory.cs
+├── docs/
+│   └── TESTING.md
 └── JobTracker.api.slnx
 ```
 
-## Architecture Overview
+## Getting started
 
-The project follows a simple layered structure:
+### Requirements
 
-```text
-Controller -> Service Interface -> Service -> DbContext -> Database
-```
+- **.NET SDK 10**
+- **SQL Server** or **SQL Server LocalDB**
+- Git
+- EF Core CLI tools for database migrations (`dotnet-ef`)
 
-### Controllers
-
-Controllers handle HTTP requests and responses. They receive input from the API, call the corresponding service, and return the appropriate HTTP response.
-
-### Services
-
-Services contain the application logic, including filtering, sorting, pagination, creation, update, deletion, and mapping entities to DTOs.
-
-### Data Access
-
-Entity Framework Core is used to interact with the database through `ApiDbContext`.
-
-## Main Entities
-
-### Company
-
-Represents a company where a job application can be submitted.
-
-Main fields:
-
-```text
-Id
-Name
-Description
-Website
-Location
-CreatedAt
-JobApplications
-```
-
-### JobApplication
-
-Represents a job application submitted to a company.
-
-Main fields:
-
-```text
-Id
-Position
-Status
-AppliedAt
-JobUrl
-CompanyId
-Company
-ApplicationNotes
-```
-
-### ApplicationNote
-
-Represents a note related to a specific job application.
-
-Main fields:
-
-```text
-Id
-Content
-CreatedAt
-JobApplicationId
-JobApplication
-```
-
-## Getting Started
-
-### Prerequisites
-
-Make sure you have installed:
-
-* .NET SDK 10 or later
-* SQL Server or SQL Server LocalDB
-* Git
-
-### Clone the Repository
+### Clone and restore
 
 ```bash
 git clone https://github.com/willjdev/jobtracker.git
 cd jobtracker
-```
-
-### Restore Dependencies
-
-```bash
 dotnet restore
 ```
 
-### Configure the Database
+### Configure SQL Server
 
-The API uses SQL Server through the `DefaultConnection` connection string in `appsettings.json`.
-
-Default local configuration:
+The API reads its connection string from `ConnectionStrings:DefaultConnection`. The repository currently includes a LocalDB configuration in `JobTracker.api/appsettings.json`:
 
 ```json
 {
@@ -164,13 +114,29 @@ Default local configuration:
 }
 ```
 
-Update the connection string if your SQL Server setup is different.
+Use a connection string appropriate for your local SQL Server environment. Avoid committing credentials or production secrets.
 
-### Apply Migrations
+### Configure JWT settings
+
+The API requires configuration for `Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience`, and `Jwt:ExpireInMinutes`. **Do not commit a real signing key.** For local development, you can use .NET user secrets:
+
+```bash
+dotnet user-secrets init --project JobTracker.api
+dotnet user-secrets set "Jwt:Key" "REPLACE_WITH_A_LONG_RANDOM_DEVELOPMENT_ONLY_SECRET" --project JobTracker.api
+dotnet user-secrets set "Jwt:Issuer" "JobTracker" --project JobTracker.api
+dotnet user-secrets set "Jwt:Audience" "JobTrackerClients" --project JobTracker.api
+dotnet user-secrets set "Jwt:ExpireInMinutes" "60" --project JobTracker.api
+```
+
+Replace the example key with a securely generated, sufficiently long random value. User secrets are intended for local development, **not** production secret storage. Set `ASPNETCORE_ENVIRONMENT=Development` when using development user secrets.
+
+### Apply migrations
 
 ```bash
 dotnet ef database update --project JobTracker.api
 ```
+
+If `dotnet ef` is not available, install the EF Core CLI tool compatible with the project's EF Core version.
 
 ### Run the API
 
@@ -178,145 +144,125 @@ dotnet ef database update --project JobTracker.api
 dotnet run --project JobTracker.api
 ```
 
-The API runs locally using the launch settings defined in the project.
+Use the local URLs displayed by the application or defined in its launch settings. In Development, ASP.NET Core exposes an OpenAPI document at `/openapi/v1.json`.
 
-HTTP:
+## Authentication
 
-```text
-http://localhost:5400
-```
+The authentication controller exposes:
 
-HTTPS:
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `POST` | `/api/auth/register` | Register an account |
+| `POST` | `/api/auth/login` | Sign in and receive a JWT |
 
-```text
-https://localhost:7300
-```
-
-In development, the OpenAPI document is available at:
-
-```text
-https://localhost:7300/openapi/v1.json
-```
-
-## API Endpoints
-
-### Companies
+Example registration request:
 
 ```http
-GET    /api/companies
-GET    /api/companies/{id}
-POST   /api/companies
-PUT    /api/companies/{id}
-DELETE /api/companies/{id}
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test",
+  "lastname": "User",
+  "email": "test@example.com",
+  "password": "ExamplePassword123"
+}
 ```
 
-Example query with filters, sorting, and pagination:
+Example login request:
 
 ```http
-GET /api/companies?name=Microsoft&fieldName=name&sortByType=asc&page=1&records=4
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "ExamplePassword123"
+}
 ```
 
-Available query parameters:
-
-```text
-name
-location
-createdAt
-jobApplicationPosition
-fieldName
-sortByType
-page
-records
-```
-
-### Job Applications
+A successful authentication response includes a token. Send it to protected endpoints using the `Authorization` header:
 
 ```http
-GET    /api/applications
-GET    /api/applications/{id}
-POST   /api/applications
-PUT    /api/applications/{id}
-DELETE /api/applications/{id}
+Authorization: Bearer <YOUR_JWT_TOKEN>
 ```
 
-Example query with filters, sorting, and pagination:
+The test-only headers described in `docs/TESTING.md` are **not** production authentication mechanisms.
+
+## API endpoints
+
+| Resource | Method | Endpoint |
+| --- | --- | --- |
+| Companies | `GET` | `/api/companies` |
+| Companies | `GET` | `/api/companies/{id}` |
+| Companies | `POST` | `/api/companies` |
+| Companies | `PUT` | `/api/companies/{id}` |
+| Companies | `DELETE` | `/api/companies/{id}` |
+| Job applications | `GET` | `/api/applications` |
+| Job applications | `GET` | `/api/applications/{id}` |
+| Job applications | `POST` | `/api/applications` |
+| Job applications | `PUT` | `/api/applications/{id}` |
+| Job applications | `DELETE` | `/api/applications/{id}` |
+| Application notes | `GET` | `/api/application-notes` |
+| Application notes | `GET` | `/api/application-notes/{id}` |
+| Application notes | `POST` | `/api/application-notes` |
+| Application notes | `PUT` | `/api/application-notes/{id}` |
+| Application notes | `DELETE` | `/api/application-notes/{id}` |
+
+### Filtering, sorting, and pagination
+
+The company listing supports query parameters such as `name`, `location`, `createdAt`, `jobApplicationPosition`, `fieldName`, `sortByType`, `page`, and `records`.
+
+The job-application listing supports `position`, `status`, `appliedAt`, `companyId`, `fieldName`, `sortByType`, `page`, and `records`.
+
+Example:
 
 ```http
-GET /api/applications?status=Applied&fieldName=appliedAt&sortByType=desc&page=1&records=4
+GET /api/applications?position=Developer&fieldName=position&sortByType=desc&page=1&records=4
+Authorization: Bearer <YOUR_JWT_TOKEN>
 ```
 
-Available query parameters:
-
-```text
-position
-status
-appliedAt
-companyId
-fieldName
-sortByType
-page
-records
-```
-
-### Application Notes
-
-```http
-GET    /api/application-notes
-GET    /api/application-notes/{id}
-POST   /api/application-notes
-PUT    /api/application-notes/{id}
-DELETE /api/application-notes/{id}
-```
-
-## Paginated Response Example
-
-List endpoints return paginated responses using this structure:
+Paginated endpoints return a response shaped like:
 
 ```json
 {
   "items": [],
   "page": 1,
   "records": 4,
-  "totalRecords": 20,
-  "totalPages": 5
+  "totalRecords": 0,
+  "totalPages": 0
 }
 ```
 
+This is a **structure example**, not the response to the preceding request. The application-notes listing is read as a list in the current integration tests rather than a paginated response.
+
 ## Testing
 
-The project includes automated tests for the service layer.
+JobTracker has two complementary test projects:
 
-Tested services:
+| Project | Scope | Infrastructure |
+| --- | --- | --- |
+| `JobTracker.Api.Tests` | Service behavior, querying, CRUD rules, and persistence with EF Core | xUnit + SQLite in-memory |
+| `JobTracker.Api.IntegrationTests` | Real HTTP endpoints, routing, DTOs, authentication/authorization behavior, services, and persistence | xUnit + `WebApplicationFactory` / `TestServer` + SQLite in-memory |
 
-```text
-CompanyService
-JobApplicationService
-ApplicationNoteService
-```
-
-The tests use:
-
-* xUnit
-* Entity Framework Core
-* SQLite in-memory database
-
-Run all tests:
+Run the complete solution's tests from the repository root:
 
 ```bash
 dotnet test
 ```
 
-## Continuous Integration
+Run one project:
 
-The repository uses GitHub Actions to automatically restore, build, and test the solution on every push or pull request to the `main` branch.
-
-Workflow file:
-
-```text
-.github/workflows/ci.yml
+```bash
+dotnet test JobTracker.Api.Tests/JobTracker.Api.Tests.csproj
+dotnet test JobTracker.Api.IntegrationTests/JobTracker.Api.IntegrationTests.csproj
 ```
 
-The workflow runs:
+Read **[Testing documentation](docs/TESTING.md)** for the test strategy, database isolation, authentication simulation, covered scenarios, and useful commands.
+
+## Continuous integration
+
+The workflow in `.github/workflows/ci.yml` runs on pushes and pull requests targeting `main`. It uses .NET SDK **10**, restores dependencies, builds, and executes the solution's tests:
 
 ```bash
 dotnet restore
@@ -324,31 +270,12 @@ dotnet build --no-restore
 dotnet test --no-restore --verbosity normal
 ```
 
-## What I Practiced
+CI verifies the build and tests; a deployment pipeline is not documented here.
 
-Through this project, I practiced:
+## Engineering focus
 
-* Building RESTful APIs with ASP.NET Core.
-* Creating controllers and route-based endpoints.
-* Using Entity Framework Core with SQL Server.
-* Modeling one-to-many relationships.
-* Creating request and response DTOs.
-* Separating business logic into services.
-* Using interfaces and dependency injection.
-* Building dynamic queries with LINQ.
-* Implementing filtering, sorting, and pagination.
-* Returning paginated API responses.
-* Writing automated tests for the service layer.
-* Using SQLite in-memory for relational tests.
-* Setting up continuous integration with GitHub Actions.
+This project provides practical experience with API design, EF Core relationships, dependency injection, JWT-based authentication, per-user access checks, validation, paginated querying, isolated relational tests, and continuous integration.
 
-## Next Steps
+## Future improvements
 
-Planned improvements:
-
-* Add authentication and authorization.
-* Add user-specific job applications.
-* Add global exception handling middleware.
-* Add integration tests for controllers.
-* Improve API documentation with request and response examples.
-* Deploy the API to a cloud provider.
+Potential next steps include deployment, richer request/response examples, global exception-handling improvements, and additional end-to-end coverage for the **real JWT registration/login flow**. The current HTTP integration suite uses a dedicated test authentication handler rather than testing JWT validation itself.

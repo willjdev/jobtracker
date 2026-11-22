@@ -8,7 +8,7 @@ using JobTracker.Api.IntegrationTests.TestData;
 
 namespace JobTracker.Api.IntegrationTests.Controllers.ApplicationNotes;
 
-public class ApplicatioNoteControllerPostTests
+public class ApplicationNoteControllerPostTests
 {
     [Fact]
     public async Task Create_WhenDataIsValid_ReturnsCreated()

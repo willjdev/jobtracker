@@ -96,7 +96,7 @@ public class ApplicationNoteControllerGetTests
     }
 
     [Fact]
-    public async Task Get_WhenApplicationNoteBelongsToAnoterUser_ReturnsNotFound()
+    public async Task Get_WhenApplicationNoteBelongsToAnotherUser_ReturnsNotFound()
     {
         // Arrange
         using var factory = new JobTrackerWebApplicationFactory();

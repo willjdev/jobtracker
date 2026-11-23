@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      Jwt__Key: "IntegrationTestsOnlySigningKey12345678"
+
     steps:
     - uses: actions/checkout@v4
 

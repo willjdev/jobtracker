@@ -43,7 +43,7 @@ namespace JobTracker.api.Migrations
 
                     b.HasIndex("JobApplicationId");
 
-                    b.ToTable("Notes");
+                    b.ToTable("Notes", (string)null);
                 });
 
             modelBuilder.Entity("JobTracker.Api.Models.ApplicationUser", b =>
@@ -149,7 +149,7 @@ namespace JobTracker.api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("JobTracker.Api.Models.JobApplication", b =>
@@ -181,7 +181,7 @@ namespace JobTracker.api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Applications");
+                    b.ToTable("Applications", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

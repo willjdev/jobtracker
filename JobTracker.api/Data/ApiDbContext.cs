@@ -12,6 +12,24 @@ public class ApiDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Company>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+        
+        modelBuilder.Entity<JobApplication>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(j => j.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ApplicationNote>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<JobApplication>()
             .HasOne(j => j.Company)
             //Cada JobApplication tiene una empresa asociada, la cual se guarda en la propiedad Company, que esta definido en el modelo de JobApplication
